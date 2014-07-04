@@ -1,0 +1,40 @@
+<html><head>
+    <title>Cast Media Player</title>
+    <link rel="stylesheet" href="0001/player.css">
+    <script type="text/javascript" src="0001/player.js"></script><link rel="stylesheet" type="text/css" href="undefined">
+    <script type="text/javascript" src="cast_receiver.js"></script>
+    <script type="text/javascript" src="media_player.js"></script>
+  </head>
+  <body>
+    <div id="player" class="gcpa" type="unknown" state="idle">
+	    <div class="background"></div>
+	    <div class="gcpb">
+			    <video></video>
+			    <div class="logo">CloudCast</div>
+			    <div class="gcpr"></div>
+			    <div class="splash">CloudCast</div>
+			    <div class="watermark"></div>
+			    <div class="gcpc"></div>
+			    <div class="gcpd">
+			     	<div class="gcph">
+			     		<div class="gcpg"></div>
+			     		<div class="gcpf"></div>
+			      </div>
+				    <div class="gcpk">
+				    	<span class="gcpl"></span>
+				    	<span class="gcpp"></span>
+				    	<span class="gcpq"></span>
+				    	<div class="gcpm">	<div class="gcpn progressBar"></div> <div class="gcpo"></div>	</div>
+				    </div>
+    		  </div>
+		  </div>
+		  <div class="message"></div>
+    </div>
+
+    <script>
+      var playerDiv = document.querySelector("#player");
+      new castplayer.CastPlayer(playerDiv).start();
+    </script>
+  
+
+</body></html>
