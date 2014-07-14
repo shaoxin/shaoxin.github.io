@@ -65,7 +65,8 @@ Player.prototype.move = function (distance, pawn) {
         nextPos,
         dest,
         steps,
-        i;
+        i,
+        switchPlayer = false;
 
     if (!this.isFocused || !pawn) {
         return false;
@@ -90,6 +91,7 @@ Player.prototype.move = function (distance, pawn) {
                 i++;
             }
         }
+        switchPlayer = true;
     }
 
     // moving on the board
@@ -111,6 +113,8 @@ Player.prototype.move = function (distance, pawn) {
 
     pawn.move(fields);
     pawn.position = nextPos;
+    if (switchPlayer)
+        nextPlayer();
     return true;
 };
 
