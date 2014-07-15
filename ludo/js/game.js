@@ -41,6 +41,8 @@
         global.game = game;
         global.nextPlayer = nextPlayer;
         game.playerList = $('#players-list');
+
+        log('init game');
         
         game.board = new Board('board');
         game.board.dice = new Dice('content');
@@ -49,42 +51,8 @@
         addPlayer('Player 3', YELLOW);
         addPlayer('Player 4', BLUE);
         nextPlayer();
-    }
 
-    function handlemsg(msg) {
-        if (msg === 'click') {
-            log("click received in handleChromeCast");
-            if (game.stat === 'waitDice') {
-                game.board.dice.roll(function (newValue) {game.stat = 'waitPawn';});
-            }
-            if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
-            	var pawn = player.getCurrentPawn();
-                player.move(game.board.dice.getValue(), pawn);
-            }
-        }
-        if (msg === 'next') {
-            log("next received in handleChromeCast");
-            if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
-                player.nextPawn();
-            }
-        }
-        if (msg === 'prev') {
-            log("prev received in handleChromeCast");
-            if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
-                player.prevPawn();
-            }
-        }
-    }
-
-    global.addEventListener('load', function () {
-        init();
-    });
-}(this));
-
-      window.onload = function() {
+        log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
         window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
         console.log('Starting Receiver Manager');
@@ -120,6 +88,11 @@
           window.castReceiverManager.getCastMessageBus(
               'urn:x-cast:com.google.cast.sample.helloworld');
 
+
+        // initialize the CastReceiverManager with an application status message
+        window.castReceiverManager.start({statusText: "Application is starting"});
+        console.log('Receiver Manager started');
+
         // handler for the CastMessageBus message event
         window.messageBus.onMessage = function(event) {
           console.log('Message [' + event.senderId + ']: ' + event.data);
@@ -132,7 +105,37 @@
           window.messageBus.send(event.senderId, event.data);
         }
 
-        // initialize the CastReceiverManager with an application status message
-        window.castReceiverManager.start({statusText: "Application is starting"});
-        console.log('Receiver Manager started');
-      };
+    }
+
+    function handlemsg(msg) {
+        if (msg === 'click') {
+            log("click received in handleChromeCast");
+            if (game.stat === 'waitDice') {
+                game.board.dice.roll(function (newValue) {game.stat = 'waitPawn';});
+            }
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+            	var pawn = player.getCurrentPawn();
+                player.move(game.board.dice.getValue(), pawn);
+            }
+        }
+        if (msg === 'next') {
+            log("next received in handleChromeCast");
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+                player.nextPawn();
+            }
+        }
+        if (msg === 'prev') {
+            log("prev received in handleChromeCast");
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+                player.prevPawn();
+            }
+        }
+    }
+
+    global.addEventListener('load', function () {
+        init();
+    });
+}(this));
