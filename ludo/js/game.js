@@ -55,6 +55,7 @@
         log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
         window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+        window.game = game;
         console.log('Starting Receiver Manager');
         
         // handler for the 'ready' event
@@ -96,13 +97,14 @@
         // handler for the CastMessageBus message event
         window.messageBus.onMessage = function(event) {
           console.log('Message [' + event.senderId + ']: ' + event.data);
-          game.nextPlayer();
-          game.handlemsg(event.data);
           // display the message from the sender
           //displayText(event.data);
           // inform all senders on the CastMessageBus of the incoming message event
           // sender message listener will be invoked
           window.messageBus.send(event.senderId, event.data);
+
+          window.game.nextPlayer();
+          window.game.handlemsg(event.data);
         }
 
     }
