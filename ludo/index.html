@@ -8,6 +8,18 @@
 </head>
 <body>
     <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+
+    <script src="lib/zepto.js"></script>
+    <script src="utils/log.js"></script>
+    <script src="utils/sfx.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/field.js"></script>
+    <script src="js/pawn.js"></script>
+    <script src="js/base.js"></script>
+    <script src="js/dice.js"></script>
+    <script src="js/game.js"></script>
+
     <script type="text/javascript">
       window.onload = function() {
         cast.receiver.logger.setLevelValue(0);
@@ -40,7 +52,7 @@
               event.data['muted']);
         };
 
-/*        // create a CastMessageBus to handle messages for a custom namespace
+        // create a CastMessageBus to handle messages for a custom namespace
         window.messageBus =
           window.castReceiverManager.getCastMessageBus(
               'urn:x-cast:com.google.cast.sample.helloworld');
@@ -48,12 +60,13 @@
         // handler for the CastMessageBus message event
         window.messageBus.onMessage = function(event) {
           console.log('Message [' + event.senderId + ']: ' + event.data);
+          //handleChromeCast(event.data);
           // display the message from the sender
-          displayText(event.data);
+          //displayText(event.data);
           // inform all senders on the CastMessageBus of the incoming message event
           // sender message listener will be invoked
           window.messageBus.send(event.senderId, event.data);
-        }*/
+        }
 
         // initialize the CastReceiverManager with an application status message
         window.castReceiverManager.start({statusText: "Application is starting"});
@@ -76,15 +89,5 @@
             <ul id="players-list"></ul>
         </div>
     </div>
-    <script src="lib/zepto.js"></script>
-    <script src="utils/log.js"></script>
-    <script src="utils/sfx.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/board.js"></script>
-    <script src="js/field.js"></script>
-    <script src="js/pawn.js"></script>
-    <script src="js/base.js"></script>
-    <script src="js/dice.js"></script>
-    <script src="js/game.js"></script>
 </body>
 </html>
