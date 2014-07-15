@@ -106,6 +106,7 @@ Player.prototype.move = function (distance, pawn) {
         // enter the board
         nextPos = 0;
         fields.push(this.board.getField(this.path[0]));
+        switchPlayer = false;
     // pawn is moving on the board
     } else {
         nextPos = pawn.position + distance;
@@ -121,7 +122,7 @@ Player.prototype.move = function (distance, pawn) {
     }
 
     // moving on the board
-    if (nextPos < 44) {
+    if ((nextPos < 44) || ((nextPos > 44) && (nextPos <= 49))) {
         dest = this.path[nextPos];
         nextPawn = this.board.getField(dest).getPawn();
         // pawn stands on next field
@@ -133,14 +134,19 @@ Player.prototype.move = function (distance, pawn) {
             // this is other player's pawn - kill him
             nextPawn.kill();
         }
+    } else if (nextPos == 44) {
+        this.pawns[this.currentPawn].kill();
     } else {
         return false;
     }
 
     pawn.move(fields);
     pawn.position = nextPos;
-    if (switchPlayer)
+    if (switchPlayer) {
         nextPlayer();
+    } else {
+        playAward();
+    }
     return true;
 };
 

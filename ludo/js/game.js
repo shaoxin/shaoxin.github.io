@@ -10,6 +10,10 @@
         YELLOW = 4,
         BLUE = 5;
 
+    function playAward() {
+        game.stat = 'waitDice';
+    }
+
     function nextPlayer() {
         var next = game.current + 1,
             arrow = $('.arrow'),
@@ -40,6 +44,9 @@
         //todo remove
         global.game = game;
         global.nextPlayer = nextPlayer;
+        global.playAward = playAward;
+        global.rollDoneHandler = rollDoneHandler;
+
         game.playerList = $('#players-list');
 
         log('init game');
@@ -109,33 +116,49 @@
 
     }
 
+    function rollDoneHandler(newValue) {
+    	log('rollDoneHandler ' + newValue);
+        if ((game.players[game.current].start.getFreeField() === null) &&
+                (newValue !== 6)) {
+            nextPlayer();
+        } else {
+            game.stat = 'waitPawn';
+        }
+    }
+
     function handlemsg(msg) {
+        log(msg + " received in handleChromeCast");
         if (msg === 'click') {
-            log("click received in handleChromeCast");
             if (game.stat === 'waitDice') {
-                game.board.dice.roll(function (newValue) {game.stat = 'waitPawn';});
-            }
-            if (game.stat === 'waitPawn') {
+                game.board.dice.roll(rollDoneHandler);
+            } else if (game.stat === 'waitPawn') {
             	var player = game.players[game.current];
             	var pawn = player.getCurrentPawn();
                 player.move(game.board.dice.getValue(), pawn);
             }
-        }
-        if (msg === 'next') {
-            log("next received in handleChromeCast");
+        } else if (msg === 'next') {
             if (game.stat === 'waitPawn') {
             	var player = game.players[game.current];
                 player.nextPawn();
             }
-        }
-        if (msg === 'prev') {
-            log("prev received in handleChromeCast");
+        } else if (msg === 'prev') {
             if (game.stat === 'waitPawn') {
             	var player = game.players[game.current];
                 player.prevPawn();
             }
         }
     }
+
+	document.onkeydown = function(event) {
+		log('key ' + event.keyCode + ' pressed!');
+		if (event.keyCode === 13) {
+			handlemsg('click');
+		} else if (event.keyCode === 37) {
+			handlemsg('prev');
+		} else if (event.keyCode === 39) {
+			handlemsg('next');
+		}
+	}
 
     global.addEventListener('load', function () {
         init();

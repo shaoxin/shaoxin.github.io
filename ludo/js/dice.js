@@ -90,7 +90,7 @@ Dice.prototype.init = function () {
                                 hint.remove();
                                 that.firstThrow = false;
                             }
-                            that.roll();
+                            that.roll(rollDoneHandler);
                         }
                     }
                 }))
