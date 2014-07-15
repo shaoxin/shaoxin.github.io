@@ -104,7 +104,7 @@
           window.messageBus.send(event.senderId, event.data);
 
           handlemsg(event.data);
-          window.game.handlemsg(event.data);
+          //window.game.handlemsg(event.data);
         }
 
     }
