@@ -24,6 +24,7 @@
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
         game.players[game.current].focus();
+        game.stat = 'waitDice';
     }
 
     function addPlayer(name, color) {
@@ -49,7 +50,35 @@
         addPlayer('Player 4', BLUE);
         nextPlayer();
     }
-    
+
+    function handleChromeCast(msg) {
+        if (msg === 'click') {
+            log("click received in handleChromeCast");
+            if (game.stat === 'waitDice') {
+                game.board.dice.roll(function (newValue) {game.stat = 'waitPawn';});
+            }
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+            	var pawn = player.getCurrentPawn();
+                player.move(game.board.dice.getValue(), pawn);
+            }
+        }
+        if (msg === 'next') {
+            log("next received in handleChromeCast");
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+                player.nextPawn();
+            }
+        }
+        if (msg === 'prev') {
+            log("prev received in handleChromeCast");
+            if (game.stat === 'waitPawn') {
+            	var player = game.players[game.current];
+                player.prevPawn();
+            }
+        }
+    }
+
     global.addEventListener('load', function () {
         init();
     });

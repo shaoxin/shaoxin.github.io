@@ -36,7 +36,33 @@ Player.prototype.setPawns = function () {
         this.pawns[i] = pawn;
         this.board.add(pawn.$elem);
     }
+    this.currentPawn = 0;
 };
+
+Player.prototype.getCurrentPawn = function () {
+    return this.pawns[this.currentPawn] || null;
+}
+
+Player.prototype.nextPawn = function () {
+    var prev = this.currentPawn;
+    if (this.currentPawn == 3) {
+    	this.currentPawn = 0;
+    } else {
+    	this.currentPawn++;
+    }
+    this.pawns[prev].blur();
+    this.pawns[this.currentPawn].focus();
+}
+Player.prototype.prevPawn = function () {
+    var prev = this.currentPawn;
+    if (this.currentPawn == 0) {
+    	this.currentPawn = 3;
+    } else {
+    	this.currentPawn--;
+    }
+    this.pawns[prev].blur();
+    this.pawns[this.currentPawn].focus();
+}
 
 Player.prototype.focus = function () {
     this.isFocused = true;
