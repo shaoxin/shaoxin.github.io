@@ -51,7 +51,7 @@
         nextPlayer();
     }
 
-    function handleChromeCast(msg) {
+    function handlemsg(msg) {
         if (msg === 'click') {
             log("click received in handleChromeCast");
             if (game.stat === 'waitDice') {
