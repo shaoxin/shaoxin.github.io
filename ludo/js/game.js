@@ -103,7 +103,7 @@
           // sender message listener will be invoked
           window.messageBus.send(event.senderId, event.data);
 
-          window.game.nextPlayer();
+          handlemsg(event.data);
           window.game.handlemsg(event.data);
         }
 
