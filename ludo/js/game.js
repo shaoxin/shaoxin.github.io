@@ -15,9 +15,14 @@
     }
 
     function nextPlayer() {
-        var next = game.current + 1,
+        var next = game.current,
             arrow = $('.arrow'),
             i = 0;
+
+        if (game.numDone == 4) {
+            log('all players are done, need to restart the game');
+            return;
+        }
 
         while (game.players[i]) {
             game.players[i].blur();
@@ -25,9 +30,23 @@
         }
 
         arrow.removeClass('arrow-' + game.current);
+        i = 0;
+        while (i < 4) {
+            if (next == 3) {
+                next = 0;
+            } else {
+                next++;
+            }
+            if (game.players[next].numAflight == 4) {
+                i++;
+                continue;
+            } else {
+                break;
+            }
+        }
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
-        game.players[game.current].focus();
+        //game.players[game.current].focus();
         game.stat = 'waitDice';
     }
 
@@ -47,6 +66,7 @@
         global.playAward = playAward;
         global.rollDoneHandler = rollDoneHandler;
 
+        game.numDone = 0;
         game.playerList = $('#players-list');
 
         log('init game');
@@ -81,8 +101,8 @@
         castReceiverManager.onSenderDisconnected = function(event) {
           console.log('Received Sender Disconnected event: ' + event.data);
           if (window.castReceiverManager.getSenders().length == 0) {
-	        window.close();
-	      }
+            window.close();
+          }
         };
         
         // handler for 'systemvolumechanged' event
@@ -117,12 +137,14 @@
     }
 
     function rollDoneHandler(newValue) {
-    	log('rollDoneHandler ' + newValue);
-        if ((game.players[game.current].start.getFreeField() === null) &&
+        log('rollDoneHandler=' + newValue + ', current=' + game.current);
+        var player = game.players[game.current];
+        if ((player.start.getFreeField() === null) &&
                 (newValue !== 6)) {
             nextPlayer();
         } else {
             game.stat = 'waitPawn';
+            game.players[game.current].focus();
         }
     }
 
@@ -132,33 +154,33 @@
             if (game.stat === 'waitDice') {
                 game.board.dice.roll(rollDoneHandler);
             } else if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
-            	var pawn = player.getCurrentPawn();
+                var player = game.players[game.current];
+                var pawn = player.getCurrentPawn();
                 player.move(game.board.dice.getValue(), pawn);
             }
         } else if (msg === 'next') {
             if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
+                var player = game.players[game.current];
                 player.nextPawn();
             }
         } else if (msg === 'prev') {
             if (game.stat === 'waitPawn') {
-            	var player = game.players[game.current];
+                var player = game.players[game.current];
                 player.prevPawn();
             }
         }
     }
 
-	document.onkeydown = function(event) {
-		log('key ' + event.keyCode + ' pressed!');
-		if (event.keyCode === 13) {
-			handlemsg('click');
-		} else if (event.keyCode === 37) {
-			handlemsg('prev');
-		} else if (event.keyCode === 39) {
-			handlemsg('next');
-		}
-	}
+    document.onkeydown = function(event) {
+        log('key ' + event.keyCode + ' pressed!');
+        if (event.keyCode === 13) {
+            handlemsg('click');
+        } else if (event.keyCode === 37) {
+            handlemsg('prev');
+        } else if (event.keyCode === 39) {
+            handlemsg('next');
+        }
+    }
 
     global.addEventListener('load', function () {
         init();

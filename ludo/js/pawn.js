@@ -7,6 +7,7 @@ var Pawn = function (player, x, y) {
     this.init();
     this.isMoving = false;
     this.isFocused = false;
+    this.isArrived = false;
 };
 
 Pawn.prototype.size = 50;

@@ -8,6 +8,7 @@ var Player = function (name, color, board) {
     this.setPawns();
     this.isFocused = false;
     this.isFinished = false;
+    this.numAflight = 0;
 };
 
 Player.prototype.setPath = function () {
@@ -43,33 +44,64 @@ Player.prototype.getCurrentPawn = function () {
     return this.pawns[this.currentPawn] || null;
 }
 
+Player.prototype.getNextAvailPawnIndex = function () {
+    var current = this.currentPawn;
+    var i = 0;
+
+    while (i < 4) {
+        if (current == 3) {
+            current = 0;
+        } else {
+            current++;
+        }
+        if (this.pawns[current].isArrived) {
+            i++;
+            continue;
+        } else {
+            break;
+        }
+    }
+    return current;
+}
+
 Player.prototype.nextPawn = function () {
     var prev = this.currentPawn;
-    if (this.currentPawn == 3) {
-    	this.currentPawn = 0;
-    } else {
-    	this.currentPawn++;
-    }
+
     this.pawns[prev].blur();
+    this.currentPawn = this.getNextAvailPawnIndex();
     this.pawns[this.currentPawn].focus();
 }
 Player.prototype.prevPawn = function () {
     var prev = this.currentPawn;
-    if (this.currentPawn == 0) {
-    	this.currentPawn = 3;
-    } else {
-    	this.currentPawn--;
+    var current = this.currentPawn;
+    var i = 0;
+
+    while (i < 4) {
+        if (current == 0) {
+            current = 3;
+        } else {
+            current--;
+        }
+        if (this.pawns[current].isArrived) {
+            i++;
+            continue;
+        } else {
+            break;
+        }
     }
     this.pawns[prev].blur();
+    this.currentPawn = current;
     this.pawns[this.currentPawn].focus();
 }
 
 Player.prototype.focus = function () {
     this.isFocused = true;
+    this.getCurrentPawn().focus();
 };
 
 Player.prototype.blur = function () {
     this.isFocused = false;
+    this.getCurrentPawn().blur();
 };
 
 Player.prototype.isMovable = function () {
@@ -128,24 +160,42 @@ Player.prototype.move = function (distance, pawn) {
         // pawn stands on next field
         if (nextPawn) {
             // this is players pawn - can't move
-            if (nextPawn.player === this) {
+            if ((nextPawn.player === this) &&
+                    (nextPawn != this.getCurrentPawn())) {
                 return false;
             }
             // this is other player's pawn - kill him
             nextPawn.kill();
         }
     } else if (nextPos == 44) {
-        this.pawns[this.currentPawn].kill();
+        var field = this.start.getFreeField();
+        if (field) {
+            fields.push(this.start.getFreeField());
+            this.numAflight++;
+            pawn.isArrived = true;
+            if (this.numAflight == 4) {
+                game.numDone++;
+            }
+        } else {
+            alert('this is wrong');
+        }
     } else {
         return false;
     }
 
     pawn.move(fields);
+    if (nextPos > 44) {
+        nextPos = 44 - (nextPos - 44);
+    }
     pawn.position = nextPos;
     if (switchPlayer) {
         nextPlayer();
     } else {
         playAward();
+    }
+    if ((pawn.position == 44) && (this.numAflight < 4)) {
+        this.currentPawn = this.getNextAvailPawnIndex();
+        log('arrived, pick up another pawn');
     }
     return true;
 };
