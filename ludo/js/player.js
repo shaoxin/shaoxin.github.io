@@ -9,6 +9,7 @@ var Player = function (name, color, board) {
     this.isFocused = false;
     this.isFinished = false;
     this.numAflight = 0;
+    this.channel = 0;
 };
 
 Player.prototype.setPath = function () {

@@ -3,7 +3,8 @@
             board: null,
             current: -1,
             players: [],
-            playerList: null
+            playerList: null,
+            joinIndex: 0
         },
         RED = 2,
         GREEN = 3,
@@ -130,7 +131,7 @@
           // sender message listener will be invoked
           window.messageBus.send(event.senderId, event.data);
 
-          handlemsg(event.data);
+          handlemsg(event.senderId, event.data);
           //window.game.handlemsg(event.data);
         }
 
@@ -148,24 +149,44 @@
         }
     }
 
-    function handlemsg(msg) {
-        log(msg + " received in handleChromeCast");
+    function handlemsg(channel, msg) {
+        var player = game.players[game.current];
+        var pawn = player.getCurrentPawn();
+
+        log("'" + msg + "' received in handlemsg from channel " + channel);
+
+        if (msg === 'join') {
+            var i = game.joinIndex;
+            if (i <= 1) {
+                game.players[2*i].channel = channel;
+                game.players[2*i+1].channel = channel;
+                log('player ' + 2*i + ' and ' + 2*i+1 +
+                    ' are allocated to channel ' + channel);
+                i++;
+                game.joinIndex = i;
+            } else {
+                log('no more players could be allocated');
+            }
+            return;
+        }
+
+        if (player.channel != channel) {
+            log("it's not your turn");
+            return;
+        }
+
         if (msg === 'click') {
             if (game.stat === 'waitDice') {
                 game.board.dice.roll(rollDoneHandler);
             } else if (game.stat === 'waitPawn') {
-                var player = game.players[game.current];
-                var pawn = player.getCurrentPawn();
                 player.move(game.board.dice.getValue(), pawn);
             }
         } else if (msg === 'next') {
             if (game.stat === 'waitPawn') {
-                var player = game.players[game.current];
                 player.nextPawn();
             }
         } else if (msg === 'prev') {
             if (game.stat === 'waitPawn') {
-                var player = game.players[game.current];
                 player.prevPawn();
             }
         }
@@ -174,11 +195,11 @@
     document.onkeydown = function(event) {
         log('key ' + event.keyCode + ' pressed!');
         if (event.keyCode === 13) {
-            handlemsg('click');
+            handlemsg(0, 'click');
         } else if (event.keyCode === 37) {
-            handlemsg('prev');
+            handlemsg(0, 'prev');
         } else if (event.keyCode === 39) {
-            handlemsg('next');
+            handlemsg(0, 'next');
         }
     }
 
