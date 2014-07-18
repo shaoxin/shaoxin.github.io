@@ -172,11 +172,10 @@ Player.prototype.move = function (distance, pawn) {
         var field = this.start.getFreeField();
         if (field) {
             fields.push(this.start.getFreeField());
-            this.numArrived++;
-            pawn.isArrived = true;
 
-			this.getCurrentPawn().arrive();
-			
+            pawn.arrive();
+
+            this.numArrived++;
             if (this.numArrived == 4) {
                 game.numDone++;
             }

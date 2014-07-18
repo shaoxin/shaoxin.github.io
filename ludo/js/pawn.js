@@ -46,6 +46,7 @@ Pawn.prototype.focus = function () {
 
 Pawn.prototype.arrive = function () {
     this.$elem.addClass('color');
+    this.isArrived = true;
 };
 
 
