@@ -8,7 +8,7 @@ var Player = function (name, color, board) {
     this.setPawns();
     this.isFocused = false;
     this.isFinished = false;
-    this.numAflight = 0;
+    this.numArrived = 0;
     this.channel = 0;
 };
 
@@ -172,12 +172,12 @@ Player.prototype.move = function (distance, pawn) {
         var field = this.start.getFreeField();
         if (field) {
             fields.push(this.start.getFreeField());
-            this.numAflight++;
+            this.numArrived++;
             pawn.isArrived = true;
 
 			this.getCurrentPawn().arrive();
 			
-            if (this.numAflight == 4) {
+            if (this.numArrived == 4) {
                 game.numDone++;
             }
         } else {
@@ -197,7 +197,7 @@ Player.prototype.move = function (distance, pawn) {
     } else {
         playAward();
     }
-    if ((pawn.position == 44) && (this.numAflight < 4)) {
+    if ((pawn.position == 44) && (this.numArrived < 4)) {
         this.currentPawn = this.getNextAvailPawnIndex();
         log('arrived, pick up another pawn');
     }

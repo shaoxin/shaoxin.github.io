@@ -38,7 +38,7 @@
             } else {
                 next++;
             }
-            if (game.players[next].numAflight == 4) {
+            if (game.players[next].numArrived == 4) {
                 i++;
                 continue;
             } else {
