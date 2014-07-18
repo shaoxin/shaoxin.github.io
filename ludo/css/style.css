@@ -255,3 +255,6 @@ body {
     height: 80px;
     background: url('../images/sprites.png') -240px -160px no-repeat;
 }
+.dice-hint.hide {
+	opacity:0.0;
+}

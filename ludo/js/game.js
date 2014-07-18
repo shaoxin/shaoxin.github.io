@@ -12,6 +12,8 @@
         BLUE = 5;
 
     function playAward() {
+        game.board.dice.focus();
+        game.board.dice.showHint();
         game.stat = 'waitDice';
     }
 
@@ -48,6 +50,8 @@
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
         //game.players[game.current].focus();
+        game.board.dice.focus();
+        game.board.dice.showHint();
         game.stat = 'waitDice';
     }
 
@@ -140,6 +144,8 @@
     function rollDoneHandler(newValue) {
         log('rollDoneHandler=' + newValue + ', current=' + game.current);
         var player = game.players[game.current];
+        game.board.dice.blur();
+        game.board.dice.hideHint();
         if ((player.start.getFreeField() === null) &&
                 (newValue !== 6)) {
             nextPlayer();

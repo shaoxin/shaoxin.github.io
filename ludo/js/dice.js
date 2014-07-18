@@ -69,10 +69,18 @@ Dice.prototype.blur = function () {
     this.isFocused = false;
 };
 
+Dice.prototype.showHint = function () {
+    this.$hint.removeClass('hide');
+};
+Dice.prototype.hideHint = function () {
+    this.$hint.addClass('hide');
+};
+
 Dice.prototype.init = function () {
     var that = this,
         hint = $('<div />').addClass('dice-hint');
 
+    this.$hint = hint;
     this.$elem = this.$elem || $('<div>')
             .addClass('dice-wrap')
             .append($('<div />')
@@ -87,7 +95,7 @@ Dice.prototype.init = function () {
                     click: function () {
                         if (!that.busy && that.isFocused) {
                             if (that.firstThrow) {
-                                hint.remove();
+                                that.hideHint();
                                 that.firstThrow = false;
                             }
                             that.roll(rollDoneHandler);
