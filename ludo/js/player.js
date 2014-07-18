@@ -174,6 +174,9 @@ Player.prototype.move = function (distance, pawn) {
             fields.push(this.start.getFreeField());
             this.numAflight++;
             pawn.isArrived = true;
+
+			this.getCurrentPawn().arrive();
+			
             if (this.numAflight == 4) {
                 game.numDone++;
             }

@@ -129,6 +129,11 @@ body {
     cursor: pointer;
 }
 
+.pawn.color {
+	opacity:0.4;
+	filter:alpha(opacity=40);
+}
+
 .pawn-2.focused {
     -webkit-animation-name: focusred;
 }

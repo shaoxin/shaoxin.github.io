@@ -43,6 +43,12 @@ Pawn.prototype.focus = function () {
     this.isFocused = true;
 };
 
+
+Pawn.prototype.arrive = function () {
+    this.$elem.addClass('color');
+};
+
+
 Pawn.prototype.blur = function () {
     this.$elem.removeClass('focused');
     this.isFocused = false;
