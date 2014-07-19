@@ -52,6 +52,7 @@
         //game.players[game.current].focus();
         game.board.dice.focus();
         game.board.dice.showHint();
+        game.board.dice.setPlayer(game.current + 2);
         game.stat = 'waitDice';
     }
 

@@ -5,6 +5,7 @@ var Dice = function (parent) {
     this.busy = false;
     this.isFocused = false;
     this.firstThrow = true;
+    this.color = -1;
 };
 
 Dice.prototype.size = 50;
@@ -68,6 +69,14 @@ Dice.prototype.blur = function () {
     this.$elem.removeClass('focused');
     this.isFocused = false;
 };
+
+Dice.prototype.setPlayer = function(color) {
+	if (this.color > 0) {
+        this.$elem.removeClass('dice-wrap-' + this.color);
+    }
+    this.color = color;
+    this.$elem.addClass('dice-wrap-' + color);
+}
 
 Dice.prototype.showHint = function () {
     this.$hint.removeClass('hide');

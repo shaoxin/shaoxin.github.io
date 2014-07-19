@@ -202,6 +202,22 @@ body {
     -webkit-transition: top .1s linear, left .1s linear;
 }
 
+.dice-wrap-2 {
+    background-color: rgb(183, 37, 30);
+}
+
+.dice-wrap-3 {
+    background-color: rgb(28, 85, 17);
+}
+
+.dice-wrap-4 {
+    background-color: rgb(154, 115, 24);
+}
+
+.dice-wrap-5 {
+    background-color: rgb(36, 63, 84);
+}
+
 @-webkit-keyframes focusdice {
     0% { background-position: 0 -75px; }
     25% { background-position: -90px -75px; }
