@@ -219,10 +219,10 @@ body {
 }
 
 @-webkit-keyframes focusdice {
-    0% { background-position: 0 -75px; }
+     0% { background-position: 0 -75px; }
     25% { background-position: -90px -75px; }
     50% { background-position: -180px -75px; }
-    75% { background-position: -270px -75px; }   
+    75% { background-position: -270px -75px; }
 }
 
 .dice-wrap.focused {
@@ -261,6 +261,19 @@ body {
 
 .throw {
     opacity: .3;
+}
+
+@-webkit-keyframes focusthedice {
+     0% { background-position:  -60px 0; }
+    17% { background-position: -120px 0; }
+    34% { background-position: -180px 0; }
+    51% { background-position: -240px 0; }
+    68% { background-position: -300px 0; }
+    85% { background-position:      0 0; }
+}
+
+.dice.focused {
+    -webkit-animation: focusthedice .5s steps(1) infinite alternate;
 }
 
 .dice-hint {

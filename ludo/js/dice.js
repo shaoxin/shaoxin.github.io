@@ -62,11 +62,13 @@ Dice.prototype.move = function (player) {
 
 Dice.prototype.focus = function () {
     this.$elem.addClass('focused');
+    this.$diceelem.addClass('focused');
     this.isFocused = true;
 };
 
 Dice.prototype.blur = function () {
     this.$elem.removeClass('focused');
+    this.$diceelem.removeClass('focused');
     this.isFocused = false;
 };
 
@@ -90,9 +92,7 @@ Dice.prototype.init = function () {
         hint = $('<div />').addClass('dice-hint');
 
     this.$hint = hint;
-    this.$elem = this.$elem || $('<div>')
-            .addClass('dice-wrap')
-            .append($('<div />')
+    this.$diceelem = $('<div />')
                 .addClass('dice')
                 .bind({
                     mouseover: function () {
@@ -110,7 +110,10 @@ Dice.prototype.init = function () {
                             that.roll(rollDoneHandler);
                         }
                     }
-                }))
+                });
+    this.$elem = this.$elem || $('<div>')
+            .addClass('dice-wrap')
+            .append(this.$diceelem)
             .append(hint)
             .appendTo('#' + this.parent);
 };
