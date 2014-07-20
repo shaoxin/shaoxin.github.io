@@ -23,6 +23,7 @@
             i = 0;
 
         if (game.numDone == 4) {
+            game.players[game.current].blur();
             log('all players are done, need to restart the game');
             return;
         }
@@ -47,6 +48,11 @@
                 break;
             }
         }
+        if (game.current >= 0)
+            log("player switch from " + game.players[game.current].color +
+                " to " + game.players[next].color);
+        else
+            log("player " + game.players[next].color + " starts");
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
         //game.players[game.current].focus();
@@ -143,8 +149,10 @@
     }
 
     function rollDoneHandler(newValue) {
-        log('rollDoneHandler=' + newValue + ', current=' + game.current);
         var player = game.players[game.current];
+
+        log('rollDoneHandler: currentPlayer=' + player.color + ' dice=' + newValue);
+
         game.board.dice.blur();
         game.board.dice.hideHint();
         if ((player.start.getFreeField() === null) &&

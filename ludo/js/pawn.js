@@ -1,5 +1,7 @@
 var Pawn = function (player, x, y) {
     this.player = player;
+    this.pawnIndex = player.pawnIndex;
+    player.pawnIndex++;
     this.x = x;
     this.y = y;
     this.field = null;
@@ -47,6 +49,7 @@ Pawn.prototype.focus = function () {
 Pawn.prototype.arrive = function () {
     this.$elem.addClass('color');
     this.isArrived = true;
+    this.blur();
 };
 
 
@@ -97,6 +100,7 @@ Pawn.prototype.move = function (steps, callback) {
 
 Pawn.prototype.step = function (field) {
     if (field) {
+        log("[" + this.player.color + "][" + this.pawnIndex + "](" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
         this.x = field.x;
         this.y = field.y;
     }

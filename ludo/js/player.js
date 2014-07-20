@@ -1,5 +1,6 @@
 var Player = function (name, color, board) {
     this.name = name;
+    this.pawnIndex = 1;
     this.color = color;
     this.board = board;
     this.start = new Base('start', this.color, this.board);
@@ -10,6 +11,7 @@ var Player = function (name, color, board) {
     this.isFinished = false;
     this.numArrived = 0;
     this.channel = 0;
+    this.isMoving = false;
 };
 
 Player.prototype.setPath = function () {
@@ -125,15 +127,23 @@ Player.prototype.move = function (distance, pawn) {
         dest,
         steps,
         i,
-        switchPlayer = false;
+        switchPlayer = false,
+        killOtherPawn = false;
 
     if (!this.isFocused || !pawn) {
         return false;
     }
 
+    if (this.isMoving) {
+        log("avoid move reentrance for player " + this.color);
+        return false;
+    }
+
+    this.isMoving = true;
     // pawn is still inside base
     if (pawn.position < 0) {
         if (distance !== 6) {
+            this.isMoving = false;
             return false;
         }
         // enter the board
@@ -153,6 +163,9 @@ Player.prototype.move = function (distance, pawn) {
         }
         switchPlayer = true;
     }
+    log("player " + this.color + " is moving to path[" + nextPos + "]");
+    log("path[nextPos] = " +
+        this.path[nextPos][0] + "," + this.path[nextPos][1]);
 
     // moving on the board
     if ((nextPos < 44) || ((nextPos > 44) && (nextPos <= 49))) {
@@ -161,45 +174,67 @@ Player.prototype.move = function (distance, pawn) {
         // pawn stands on next field
         if (nextPawn) {
             // this is players pawn - can't move
-            if ((nextPawn.player === this) &&
-                    (nextPawn != this.getCurrentPawn())) {
-                return false;
+            if (nextPawn.player === this) {
+                if (nextPawn != this.getCurrentPawn()) {
+                    log("choose another pawn, player " + this.color + ": "+ this.pawnIndex +
+                        " conflicts with teammate " + nextPawn.pawnIndex);
+                    this.isMoving = false;
+                    return false;
+                }
+            } else {
+                // this is other player's pawn - kill him
+                killOtherPawn = true;
             }
-            // this is other player's pawn - kill him
-            nextPawn.kill();
         }
     } else if (nextPos == 44) {
         var field = this.start.getFreeField();
         if (field) {
             fields.push(this.start.getFreeField());
-
-            pawn.arrive();
-
-            this.numArrived++;
-            if (this.numArrived == 4) {
-                game.numDone++;
-            }
         } else {
-            alert('this is wrong');
+            alert('there should be an empty field for pawn home');
         }
     } else {
+        this.isMoving = false;
+        log("out of range nextPos = " + nextPos);
         return false;
     }
 
-    pawn.move(fields);
-    if (nextPos > 44) {
-        nextPos = 44 - (nextPos - 44);
-    }
-    pawn.position = nextPos;
-    if (switchPlayer) {
-        nextPlayer();
-    } else {
-        playAward();
-    }
-    if ((pawn.position == 44) && (this.numArrived < 4)) {
-        this.currentPawn = this.getNextAvailPawnIndex();
-        log('arrived, pick up another pawn');
-    }
+    pawn.move(fields,
+        function() {
+            var player = pawn.player;
+
+            if (killOtherPawn)
+                nextPawn.kill();
+
+            if (nextPos > 44) {
+                nextPos = 44 - (nextPos - 44);
+            } else if (nextPos == 44) {
+                pawn.arrive();
+                player.numArrived++;
+                if (player.numArrived == 4) {
+                    game.numDone++;
+                }
+            }
+
+            pawn.position = nextPos;
+            player.isMoving = false;
+            log('player ' + player.color + ':' + pawn.pawnIndex + ' finished moving');
+
+            if ((pawn.position == 44) && (player.numArrived < 4)) {
+                player.currentPawn = player.getNextAvailPawnIndex();
+                log('player ' + player.color + ':' + pawn.pawnIndex +
+                    ' arrived, pick up pawn ' + player.getCurrentPawn().pawnIndex);
+            }
+
+            if (switchPlayer) {
+                nextPlayer();
+            } else {
+                log('player ' + player.color + ':' + pawn.pawnIndex +
+                    ' is onboard, roll dice again');
+                playAward();
+            }
+        });
+
     return true;
 };
 

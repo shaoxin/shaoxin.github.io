@@ -15,6 +15,8 @@ Dice.prototype.roll = function (callback) {
         $dice;
 
     if (this.$elem) {
+        if (this.busy)
+            return;
         this.busy = true;
         $dice = this.$elem.find('.dice');
         this.$elem.addClass('throw');
