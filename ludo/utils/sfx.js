@@ -13,7 +13,7 @@
         var snd;
 
         if (sfx[name]) {
-            snd = new Audio('data:audio/mp3;base64,' + sfx[name]);
+            snd = new Audio('sounds/move.mp3');
             if (typeof callback === 'function') {
                 snd.addEventListener('ended', callback);
             }
