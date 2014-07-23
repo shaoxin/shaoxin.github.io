@@ -3,7 +3,7 @@ var sfxgame = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { prelo
 
 function preload() {
 
-    sfxgame.load.audio('dice', ['sounds/crash.ogg']);
+    sfxgame.load.audio('dice', ['sounds/dice.mp3']);
 
 }
 
@@ -31,12 +31,13 @@ function create() {
         var snd;
 
         if (sfx[name]) {
-            snd = new Audio('sounds/move.ogg');
+            snd = new Audio();
             if (typeof callback === 'function') {
                 snd.addEventListener('ended', callback);
             }
-            music.play();
+            
         }
+        music.play();
     }
 
     global.Sfx = {
