@@ -11,7 +11,7 @@ var music;
 
 function create() {
 
-    music = sfxgame.add.audio('move');
+    music = sfxgame.add.audio('dice');
 
 }
 
