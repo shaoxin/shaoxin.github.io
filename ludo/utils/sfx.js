@@ -3,7 +3,7 @@ var sfxgame = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { prelo
 
 function preload() {
 
-    sfxgame.load.audio('dice', ['sounds/dice.mp3']);
+    sfxgame.load.audio('dice', ['sounds/crash.ogg']);
 
 }
 
