@@ -1,17 +1,21 @@
 
-var sfxgame = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create });
+var sfxgame = new Phaser.Game(1, 1, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create });
 
 function preload() {
 
     sfxgame.load.audio('dice', ['sounds/dice_new.wav']);
+    sfxgame.load.audio('move', ['sounds/move.mp3']);
+    sfxgame.load.audio('crash', ['sounds/crash.ogg']);
 
 }
 
-var music;
+var diceaudio;
+var moveaudio;
 
 function create() {
 
-    music = sfxgame.add.audio('dice');
+    diceaudio = sfxgame.add.audio('dice');
+    moveaudio = sfxgame.add.audio('move');
 
 }
 
@@ -37,7 +41,14 @@ function create() {
             }
             
         }
-        music.play();
+        if(name == 'dice'){        	
+        		dicemusic.play();
+        	}
+        	
+        if(name == 'move'){        	
+        		movemusic.play();
+        	}        	
+        	
     }
 
     global.Sfx = {
