@@ -176,10 +176,10 @@ Player.prototype.move = function (distance, pawn) {
             // this is players pawn - can't move
             if (nextPawn.player === this) {
                 if (nextPawn != this.getCurrentPawn()) {
-                    log("choose another pawn, player " + this.color + ": "+ this.pawnIndex +
-                        " conflicts with teammate " + nextPawn.pawnIndex);
-                    this.isMoving = false;
-                    return false;
+                   // log("choose another pawn, player " + this.color + ": "+ this.pawnIndex +
+                   //     " conflicts with teammate " + nextPawn.pawnIndex);
+                   // this.isMoving = false;
+                   // return false;
                 }
             } else {
                 // this is other player's pawn - kill him
