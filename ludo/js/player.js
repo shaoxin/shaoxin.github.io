@@ -161,7 +161,12 @@ Player.prototype.move = function (distance, pawn) {
                 i++;
             }
         }
+        if(distance == 6)
+        {
+        	switchPlayer = false;
+        }else{
         switchPlayer = true;
+      }
     }
     log("player " + this.color + " is moving to path[" + nextPos + "]");
     log("path[nextPos] = " +
