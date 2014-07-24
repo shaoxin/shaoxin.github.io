@@ -3,9 +3,8 @@ var sfxgame = new Phaser.Game(1, 1, Phaser.CANVAS, 'phaser-example', { preload: 
 
 function preload() {
 
-    sfxgame.load.audio('dice', ['sounds/dice_new.wav']);
+    sfxgame.load.audio('dice', ['sounds/dice.mp3']);
     sfxgame.load.audio('move', ['sounds/move.mp3']);
-    sfxgame.load.audio('crash', ['sounds/crash.ogg']);
 
 }
 
