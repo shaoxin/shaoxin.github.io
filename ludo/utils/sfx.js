@@ -42,11 +42,11 @@ function create() {
             
         }
         if(name == 'dice'){        	
-        		dicemusic.play();
+        		diceaudio.play();
         	}
         	
         if(name == 'move'){        	
-        		movemusic.play();
+        		moveaudio.play();
         	}        	
         	
     }
