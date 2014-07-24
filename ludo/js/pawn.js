@@ -122,6 +122,7 @@ Pawn.prototype.kill = function () {
     
     if (field) {
         field.setPawn(this);
+        this.field = null;
         this.move([field]);
         this.position = -1;
     }
