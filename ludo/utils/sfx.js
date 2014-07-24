@@ -31,7 +31,15 @@ function create() {
         }());
 
     function play(name, callback) {
+        var snd;
 
+        if (sfx[name]) {
+            snd = new Audio();
+            if (typeof callback === 'function') {
+                snd.addEventListener('ended', callback);
+            }
+            
+        }
         if(name == 'dice'){        	
         		diceaudio.play();
         	}
