@@ -37,7 +37,7 @@ Dice.prototype.roll = function (callback) {
             if (typeof callback === 'function') {
                 callback(newValue);
             }
-        }, 500);
+        }, 200);
     }
 };
 
