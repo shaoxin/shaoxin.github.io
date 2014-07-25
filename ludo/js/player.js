@@ -12,6 +12,12 @@ var Player = function (name, color, board) {
     this.numArrived = 0;
     this.channel = 0;
     this.isMoving = false;
+
+    this.user = null;
+};
+
+Player.prototype.setUser = function(user) {
+    this.user = user;
 };
 
 Player.prototype.setPath = function () {

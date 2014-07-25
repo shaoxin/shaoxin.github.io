@@ -1,10 +1,31 @@
 (function (global) {
-    var game = {
+    var AI_LEVEL = {
+		    difficult: 'difficult',
+            medium:    'medium',
+            easy:      'easy',
+	    },
+        game = {
             board: null,
             current: -1,
             players: [],
             playerList: null,
-            pickupIndex: 0
+            pickupIndex: 0,
+            proto: null,
+
+            level: AI_LEVEL.medium,
+            user_computer: null,
+            user_nobody: null,
+            user_unavailable: null,
+            user_host: null,
+            num_user: 0,
+            users: {},
+
+        },
+
+        GAME_STATUS = {
+          WAIT_FOR_CONNECTION: 'wait_for_connection',
+          WAIT_FOR_DICE: 'wait_for_rolling_dice',
+          WAIT_FOR_PAWN: 'wait_for_moving_pawn'
         },
         RED = 2,
         GREEN = 3,
@@ -14,7 +35,7 @@
     function playAward() {
         game.board.dice.focus();
         game.board.dice.showHint();
-        game.stat = 'waitDice';
+        game.stat = GAME_STATUS.WAIT_FOR_DICE;
     }
 
     function nextPlayer() {
@@ -59,17 +80,29 @@
         game.board.dice.focus();
         game.board.dice.showHint();
         game.board.dice.setPlayer(game.current + 2);
-        game.stat = 'waitDice';
+        game.stat = GAME_STATUS.WAIT_FOR_DICE;
     }
 
     function addPlayer(name, color) {
-        game.players.push(new Player(name, color, game.board));
+    	var player = new Player(name, color, game.board);
+
+        player.setUser(game.user_computer);
+
+        game.players.push(player);
 
         // todo convert to component with focus indicator etc.
         game.playerList.append(
             '<li class="player player-' + color + '"><div class="icon"></div>' + name + '</li>'
         );
     }
+    function addUser(user) {
+		game.users[user.senderID] = user;
+		game.num_user++;
+		if (game.num_user == 1) {
+			user.ishost = true;
+			game.user_host = user;
+		}
+	};
 
     function init() {
         //todo remove
@@ -78,26 +111,37 @@
         global.playAward = playAward;
         global.rollDoneHandler = rollDoneHandler;
 
-        game.numDone = 0;
+		game.addUser = addUser;
+		game.numDone = 0;
         game.playerList = $('#players-list');
 
         log(navigator.userAgent.toLowerCase());
         log('init game');
 
+        game.proto = new LudoProtocol();
         game.board = new Board('board');
         game.board.dice = new Dice('content');
+
+        game.users = {};
+        game.user_unavailable = new User(User.TYPE.UNAVAILABLE);
+        game.user_nobody      = new User(User.TYPE.NOBODY);
+        game.user_computer    = new User(User.TYPE.COMPUTER, User.READY);
+
         addPlayer('Player 1', RED);
         addPlayer('Player 2', GREEN);
         addPlayer('Player 3', YELLOW);
         addPlayer('Player 4', BLUE);
+
+        game.status = GAME_STATUS.WAIT_FOR_CONNECTION;
         nextPlayer();
 
-        str = '{ "header": { "magic": "ONLINE", "prot_version": 1}, "body": "hihi"}';
+        str = '{"magic": "ONLINE", "prot_version": 1, "command": "connect"}';
         //str = '{ "name": "strong", "header": {"age": 16 } }';
         log(typeof(str));
         js  = $.parseJSON(str);
         log(typeof js);
-        log(js.header.age);
+        log(js.magic);
+		log(JSON.stringify(js));
 
         log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
@@ -168,128 +212,14 @@
                 (newValue !== 6)) {
             nextPlayer();
         } else {
-            game.stat = 'waitPawn';
+            game.stat = GAME_STATUS.WAIT_FOR_PAWN;
             game.players[game.current].focus();
         }
     }
 
-/*
- * 1. message = $header + $body
- *
- * 2. header
- * $MAGIC,$prot_version
- *     MAGIC                "ONLINE"
- *     prot_version         1~FFFF
- *
- * 3. body
- * connect,$username [c2s]  user connects to the game
- * connect_reply,$ret,$ishost,$level:$player_status[]
- *                   [s2c]  send feedback to client for 'connect'
- *     ret                  true/false
- *                          only allow 4 connections at most
- *     ishost               true/false
- *                          game host has some privileges:
- *                              set game level
- *                              set player as unavailable/computer
- *                              override player set by other clients
- *     level                difficult/medium/easy
- *     player_status        $color:$user_type:$isready:$username
- *                          color         red/green/yellow/blue
- *                          user_type     unavailable/nobody/human/computer
- *                          isready       yes/no
- *                          username      could be an empty string
- *
- * setlevel:$level   [c2s]  set the AI level of computer player
- * setlevel_notify:$level
- *                   [s2c]  broadcast to clients new $level is set
- *
- * pickup:$color:$user_type
- *                   [c2s]  pickup as $user_type with $color pawns
- * pickup_notify:$player_status
- *                   [s2c]  broadcast to clients about $player_status
- *
- * getready          [c2s]  user is ready to play the game
- * getready_notify:$color[]
- *                   [s2c]  broadcast to other clients that $color[] is/are ready to start game
- *
- * disready          [c2s]  mark user is not ready now
- * disready_notify:$color[]
- *                   [s2c]  broadcast to other clients that $color[] become(s) unready for the game
- *
- * disconnect        [c2s]
- * disconnect_notify:$color[]
- *                   [s2c]  broadcast to other clients that $color[] get(s) disconnected
- *
- * changehost_notify [s2c]  when original host leaves game,
- *                          notify the new picked up user to be the new game host,
- *                          other clients won't receive this notification
- *
- * startgame_notify  [s2c]
- *
- * endofgame_notify: [s2c]
- *
- * 4. example flow
- *    ==Bob==          ==chromecast==           ==Alice==             ==Chandler==
- *    connect   -->
- *              <--    connect_reply
- *
- *    setlevel  -->
- *              <--    setlevel_reply
- *
- *                                       <--    connect
- *                     connect_reply     -->
- *
- *                                                             <--    connect
- *                     connect_reply                           -->
- *
- *    pickup    -->
- *              <--    pickup_reply
- *                     pickup_notify     -->
- *
- *                                       <--    pickup
- *                     pickup_reply      -->
- *              <--    pickup_notify                           -->
- *
-A*    getready  -->
- *              <--    getready_reply
- *                     getready_notify   -->                   -->
- *
- *                                       <--    getready
- *                     getready_reply    -->
- *              <--    getready_notify                         -->
- *
- *                                                             <--    getready
- *                     getready_reply                          -->
- *              <--    getready_notify   -->
-B*              <--    startgame_notify  -->
- *
- *              <--    endofgame_notify  -->
- *
- *    repeat A->B
- *                     disconnect_notify -->                   -->
- *                     changehost_notify -->
- *                     pickup_notify     -->                   -->
- *
- *                     endofgame_notify  -->                   -->
- */
-    function handlemsg(channel, msg) {
+    function handlemsg_prehistoric(channel, msg) {
         var player = game.players[game.current];
         var pawn = player.getCurrentPawn();
-
-        if (typeof msg === "object") {
-            if (typeof msg.COMMAND === "undefined") {
-                log("wrong msg format");
-                return;
-            }
-            log("msg.COMMAND=" + msg.COMMAND);
-            msg.COMMAND=msg.COMMAND+"_reply";
-            game.messageBus.send(channel, msg);
-            return;
-        } else {
-        	log("typeof msg = " + typeof msg);
-            log("else msg.command: " + msg.COMMAND);
-            return;
-        }
 
         log("'" + msg + "' received in handlemsg from channel " + channel);
 
@@ -314,19 +244,38 @@ B*              <--    startgame_notify  -->
         }
 
         if (msg === 'click') {
-            if (game.stat === 'waitDice') {
+            if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
                 game.board.dice.roll(rollDoneHandler);
-            } else if (game.stat === 'waitPawn') {
+            } else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
                 player.move(game.board.dice.getValue(), pawn);
             }
         } else if (msg === 'next') {
-            if (game.stat === 'waitPawn') {
+            if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
                 player.nextPawn();
             }
         } else if (msg === 'prev') {
-            if (game.stat === 'waitPawn') {
+            if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
                 player.prevPawn();
             }
+        }
+    }
+
+    function handlemsg(channel, msg) {
+        log("'" + msg + "' received in handlemsg from channel " + channel);
+
+        if (typeof msg === "string") {
+            var msgObj = null;
+            try {
+                var msgObj = $.parseJSON(msg);
+                game.proto.parseMsg(channel, msgObj);
+            } catch(err) {
+                console.log('not a json string, try prehistoric way');
+                handlemsg_prehistoric(channel, msg);
+            }
+        } else if (typeof msg === "object") {
+            game.proto.parseMsg(channel, msg);
+        } else {
+        	console.log("unknown typeof msg: " + typeof msg);
         }
     }
 
