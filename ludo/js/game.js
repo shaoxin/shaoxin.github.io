@@ -81,6 +81,7 @@
         game.numDone = 0;
         game.playerList = $('#players-list');
 
+        log(navigator.userAgent.toLowerCase());
         log('init game');
         
         game.board = new Board('board');
