@@ -176,6 +176,10 @@
             msg.COMMAND=msg.COMMAND+"_reply";
             game.messageBus.send(channel, msg);
             return;
+        } else {
+        	log("typeof msg = " + typeof msg);
+            log("else msg.command: " + msg.COMMAND);
+            return;
         }
 
         log("'" + msg + "' received in handlemsg from channel " + channel);
