@@ -142,6 +142,9 @@
           // sender message listener will be invoked
           game.messageBus.send(event.senderId, event.data);
 
+          var msg = event.data;
+          console.log("onMessage msg.command=" + msg.command);
+          console.log("onMessage msg.COMMAND=" + msg.COMMAND);
           handlemsg(event.senderId, event.data);
         }
 
