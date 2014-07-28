@@ -94,57 +94,55 @@
 
         log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
-        window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
-        window.game = game;
+        game.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
         console.log('Starting Receiver Manager');
         
         // handler for the 'ready' event
-        castReceiverManager.onReady = function(event) {
+        game.castReceiverManager.onReady = function(event) {
           console.log('Received Ready event: ' + JSON.stringify(event.data));
-          window.castReceiverManager.setApplicationState("Application status is ready...");
+          game.castReceiverManager.setApplicationState("Application status is ready...");
         };
         
         // handler for 'senderconnected' event
-        castReceiverManager.onSenderConnected = function(event) {
+        game.castReceiverManager.onSenderConnected = function(event) {
           console.log('Received Sender Connected event: ' + event.data);
-          console.log(window.castReceiverManager.getSender(event.data).userAgent);
+          console.log(game.castReceiverManager.getSender(event.data).userAgent);
         };
-        
+
         // handler for 'senderdisconnected' event
-        castReceiverManager.onSenderDisconnected = function(event) {
+        game.castReceiverManager.onSenderDisconnected = function(event) {
           console.log('Received Sender Disconnected event: ' + event.data);
-          if (window.castReceiverManager.getSenders().length == 0) {
+          if (game.castReceiverManager.getSenders().length == 0) {
             window.close();
           }
         };
         
         // handler for 'systemvolumechanged' event
-        castReceiverManager.onSystemVolumeChanged = function(event) {
+        game.castReceiverManager.onSystemVolumeChanged = function(event) {
           console.log('Received System Volume Changed event: ' + event.data['level'] + ' ' +
               event.data['muted']);
         };
 
         // create a CastMessageBus to handle messages for a custom namespace
-        window.messageBus =
-          window.castReceiverManager.getCastMessageBus(
+        game.messageBus =
+          game.castReceiverManager.getCastMessageBus(
               'urn:x-cast:com.google.cast.sample.helloworld');
 
 
         // initialize the CastReceiverManager with an application status message
-        window.castReceiverManager.start({statusText: "Application is starting"});
+        game.castReceiverManager.start({statusText: "Application is starting"});
         console.log('Receiver Manager started');
 
         // handler for the CastMessageBus message event
-        window.messageBus.onMessage = function(event) {
+        game.messageBus.onMessage = function(event) {
           console.log('Message [' + event.senderId + ']: ' + event.data);
           // display the message from the sender
           //displayText(event.data);
           // inform all senders on the CastMessageBus of the incoming message event
           // sender message listener will be invoked
-          window.messageBus.send(event.senderId, event.data);
+          game.messageBus.send(event.senderId, event.data);
 
           handlemsg(event.senderId, event.data);
-          //window.game.handlemsg(event.data);
         }
 
     }
@@ -168,6 +166,17 @@
     function handlemsg(channel, msg) {
         var player = game.players[game.current];
         var pawn = player.getCurrentPawn();
+
+        if (typeof msg === "object") {
+            if (typeof msg.COMMAND === "undefined") {
+                log("wrong msg format");
+                return;
+            }
+            log("msg.COMMAND=" + msg.COMMAND);
+            msg.COMMAND=msg.COMMAND+"_reply";
+            game.messageBus.send(channel, msg);
+            return;
+        }
 
         log("'" + msg + "' received in handlemsg from channel " + channel);
 
