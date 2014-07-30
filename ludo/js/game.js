@@ -96,15 +96,28 @@
         );
     }
     function addUser(user) {
+		if (game.users[user.senderID] == undefined) {
+			console.error("error: user " + user.senderID + " already added");
+			return {val: false, detail: "already added"};
+		}
+		if (game.num_user == 4) {
+			console.error("error: already 4 users");
+			return {val: false, detail: "exceed maximum connections"};
+		}
 		game.users[user.senderID] = user;
 		game.num_user++;
 		if (game.num_user == 1) {
 			user.ishost = true;
 			game.user_host = user;
+			console.log("user is chosen to be the host");
 		}
+		return {val: true, detail: ""};
+	};
+	function getUser(senderID) {
+		return game.users[senderID] || null;
 	};
 
-    function init() {
+    function onload() {
         //todo remove
         global.game = game;
         global.nextPlayer = nextPlayer;
@@ -112,6 +125,8 @@
         global.rollDoneHandler = rollDoneHandler;
 
 		game.addUser = addUser;
+		game.getUser = getUser;
+
 		game.numDone = 0;
         game.playerList = $('#players-list');
 
@@ -292,6 +307,6 @@
     }
 
     global.addEventListener('load', function () {
-        init();
+        onload();
     });
 }(this));

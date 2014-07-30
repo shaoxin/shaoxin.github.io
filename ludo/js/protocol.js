@@ -8,7 +8,7 @@
  *
  * 3. body
  * connect,$username [c2s]  user connects to the game
- * connect_reply,$ret,$ishost,$level:$player_status[]
+ * connect_reply,$ret,($error|$ishost,$level:$player_status[])
  *                   [s2c]  send feedback to client for 'connect'
  *     ret                  true/false
  *                          only allow 4 connections at most
@@ -23,6 +23,7 @@
  *                          user_type     unavailable/nobody/human/computer
  *                          isready       true/false
  *                          username      could be an empty or normal string
+ *     error                when ret == false, shows String of reason
  *
  * setlevel:$level   [c2s]  set the AI level of computer player
  * setlevel_notify:$level
@@ -98,33 +99,29 @@ B*              <--    startgame_notify  -->
  *                     endofgame_notify  -->                   -->
  */
 
-var LudoProtocol = function () {
-    this.prot_version = 0; /* could accept any available version */
-};
-
+// Anonymous namespace 
+(function(global) {
 LudoProtocol.MAGIC = 'ONLINE';
 
 LudoProtocol.COMMAND = {
 	connect:           'connect',
-	connect_reply:     'connect_reply',
 
 	setlevel:          'setlevel',
-	setlevel_notify:   'setlevel_notify',
 
 	pickup:            'pickup',
-	pickup_notify:     'pickup_notify',
 
 	getready:          'getready',
-	getready_notify:   'getready_notify',
 
 	disready:          'disready',
-	disready_notify:   'disready_notify',
 
 	disconnect:        'disconnect',
-	disconnect_notify: 'disconnect_notify',
 
-	startgame_notify:  'startgame_notify',
-	endofgame_notify:  'endofgame_notify',
+	startgame:         'startgame',
+	endofgame:         'endofgame',
+};
+
+function LudoProtocol() {
+    this.prot_version = 0; /* could accept any supported version */
 };
 
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
@@ -133,30 +130,35 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 			case LudoProtocol.COMMAND.connect:
 				var user = new User(User.TYPE.HUMAN, User.UNREADY,
 						senderID, msgObj.username);
-				game.addUser(user);
-				if (user.ishost) {
-					console.log('force LudoProtocol version(' + msgObj.prot_version
-							+ ') the same as host');
+				ret = game.addUser(user);
+				if (ret.val && user.ishost) {
+					console.log('LudoProtocol version(' +
+								msgObj.prot_version +
+								') is set the same as host');
 					this.prot_version = msgObj.prot_version;
 				}
 
 				var reply = new Object();
-				reply.command = LudoProtocol.COMMAND.connect_reply;
-				reply.ret = true;
-				reply.ishost = user.ishost;
-				reply.level = game.level;
-				reply.player_status = [];
-				for (i=0; i<game.players.length; i++) {
-					var p = game.players[i];
-					var ps = new Object();
-					var user = p.getUser();
+				reply.command = LudoProtocol.COMMAND.connect + '_reply';
+				reply.ret = ret.val;
+				if (ret.val) {
+					reply.ishost = user.ishost;
+					reply.level = game.level;
+					reply.player_status = [];
+					for (i=0; i<game.players.length; i++) {
+						var p = game.players[i];
+						var ps = new Object();
+						var user = p.getUser();
 
-					ps.color = p.color;
-					ps.user_type = user.type;
-					ps.isready = user.isready;
-					ps.username = user.name;
+						ps.color = p.color;
+						ps.user_type = user.type;
+						ps.isready = user.isready;
+						ps.username = user.name;
 
-					reply.player_status.push(ps);
+						reply.player_status.push(ps);
+					}
+				} else {
+					reply.error = ret.detail;
 				}
 				this.sendMsg(senderID, reply);
 				break;
@@ -187,9 +189,14 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 
 LudoProtocol.prototype.parseMsg = function (senderID, msgObj) {
 	try {
+		if (senderID === undefined)
+			throw "senderID not defined";
+
         if (msgObj.MAGIC !== "ONLINE")
             throw "invalid MAGIC";
 
+		if (msgObj.command === undefined)
+			throw "command not defined";
         if (this.prot_version !== 0) {
         	console.log("check msg.prot_version against protocol version in use");
 			if (!(msgObj.prot_version >= 1 && msgObj.prot_version <=1))
@@ -205,11 +212,20 @@ LudoProtocol.prototype.parseMsg = function (senderID, msgObj) {
         }
     } catch(err) {
     	console.log(err);
+		msgObj.command = msgObj.command + "_reply";
+		msgObj.ret = false;
+		msgObj.error = err;
+		sendMsg(senderID, msgObj, true);
     }
 };
 
-LudoProtocol.prototype.sendMsg = function (senderID, msgObj) {
-	msgObj.MAGIC = LudoProtocol.MAGIC;
-	msgObj.prot_version = this.prot_version;
+LudoProtocol.prototype.sendMsg = function (senderID, msgObj, keepHeader) {
+	if (keepHeader !== true) {
+		msgObj.MAGIC = LudoProtocol.MAGIC;
+		msgObj.prot_version = this.prot_version;
+	}
 	game.messageBus.send(senderID, JSON.stringify(msgObj));
 };
+
+global.LudoProtocol = LudoProtocol;
+}(this));
