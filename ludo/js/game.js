@@ -283,6 +283,7 @@
         log('key ' + event.keyCode + ' pressed!');
         if (event.keyCode === 13) {
             handlemsg(0, 'click');
+			handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
         } else if (event.keyCode === 37) {
             handlemsg(0, 'prev');
         } else if (event.keyCode === 39) {

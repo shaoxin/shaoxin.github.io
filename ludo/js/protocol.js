@@ -131,8 +131,8 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 	try {
 		switch (msgObj.command) {
 			case LudoProtocol.COMMAND.connect:
-				var user = new User(User.type.HUMAN, User.UNREADY,
-						senderID, msgOjb.username);
+				var user = new User(User.TYPE.HUMAN, User.UNREADY,
+						senderID, msgObj.username);
 				game.addUser(user);
 				if (user.ishost) {
 					console.log('force LudoProtocol version(' + msgObj.prot_version

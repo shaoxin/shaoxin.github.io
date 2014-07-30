@@ -1,4 +1,18 @@
-var User = function (type, isready, senderID, name) {
+// Anonymous namespace
+(function(global) {
+
+'use strict';
+
+User.READY = true;
+User.UNREADY = false;
+User.TYPE = {
+        	UNAVAILABLE: 'unavailabe',
+        	NOBODY: 'nobody',
+        	HUMAN: 'human',
+        	COMPUTER: 'computer',
+        };
+
+function User(type, isready, senderID, name) {
 	this.type = type;
 	this.isready = isready;
 	if (name === undefined) {
@@ -14,12 +28,5 @@ User.prototype.setready = function() {
 	this.isready = true;
 };
 
-User.TYPE = {
-        	UNAVAILABLE: 'unavailabe',
-        	NOBODY: 'nobody',
-        	HUMAN: 'human',
-        	COMPUTER: 'computer',
-        };
-
-User.READY = true;
-User.UNREADY = false;
+global.User = User;
+})(this);
