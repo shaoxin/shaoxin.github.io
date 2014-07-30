@@ -135,6 +135,8 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 						senderID, msgOjb.username);
 				game.addUser(user);
 				if (user.ishost) {
+					console.log('force LudoProtocol version(' + msgObj.prot_version
+							+ ') the same as host');
 					this.prot_version = msgObj.prot_version;
 				}
 
@@ -146,10 +148,13 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 				for (i=0; i<game.players.length; i++) {
 					var p = game.players[i];
 					var ps = new Object();
-					ps.color = p.get_color();
-					ps.user_type = p.get_user_type();
-					ps.isready = p.get_isready();
-					ps.username = p.get_username();
+					var user = p.getUser();
+
+					ps.color = p.color;
+					ps.user_type = user.type;
+					ps.isready = user.isready;
+					ps.username = user.name;
+
 					reply.player_status.push(ps);
 				}
 				this.sendMsg(senderID, reply);
@@ -183,11 +188,10 @@ LudoProtocol.prototype.parseMsg = function (senderID, msgObj) {
         if (msgObj.MAGIC !== "ONLINE")
             throw "invalid MAGIC";
 
-        if (!(msgObj.prot_version >= 1 && msgObj.prot_version <=1))
-            throw "no matching protocol version";
-
         if (this.prot_version !== 0) {
         	console.log("check msg.prot_version against protocol version in use");
+			if (!(msgObj.prot_version >= 1 && msgObj.prot_version <=1))
+				throw "not supported protocol version";
         	if (msgObj.prot_version != this.prot_version)
         	    throw "not matching protocol in use";
         }

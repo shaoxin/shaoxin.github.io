@@ -275,7 +275,7 @@
         } else if (typeof msg === "object") {
             game.proto.parseMsg(channel, msg);
         } else {
-        	console.log("unknown typeof msg: " + typeof msg);
+        	console.log("not supported 'typeof msg': " + typeof msg);
         }
     }
 

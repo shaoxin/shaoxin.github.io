@@ -20,6 +20,10 @@ Player.prototype.setUser = function(user) {
     this.user = user;
 };
 
+Player.prototype.getUser = function() {
+	return this.user || null;
+};
+
 Player.prototype.setPath = function () {
     var start = (this.color - 2) * 10,
         p = this.board.path,
