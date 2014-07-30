@@ -141,6 +141,7 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 				}
 
 				var reply = new Object();
+				reply.command = LudoProtocol.COMMAND.connect_reply;
 				reply.ret = true;
 				reply.ishost = user.ishost;
 				reply.level = game.level;
