@@ -163,22 +163,23 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 			case LudoProtocol.COMMAND.setlevel:
 				break;
 
-			case 'pickup':
+			case LudoProtocol.COMMAND.pickup:
 				break;
 
-			case 'getready':
+			case LudoProtocol.COMMAND.getready:
 				break;
 
-			case 'disready':
+			case LudoProtocol.COMMAND.disready:
 				break;
 
-			case 'disconnect':
+			case LudoProtocol.COMMAND.disconnect:
 				break;
 
 			default:
 				break;
 		}
 	} catch (err) {
+    	console.log(err);
 		return false;
 	}
 };
@@ -197,7 +198,7 @@ LudoProtocol.prototype.parseMsg = function (senderID, msgObj) {
         }
 
         if (msgObj.prot_version === 1) {
-            this.parseProt_1(senderID, msg);
+            this.parseProt_1(senderID, msgObj);
         } else {
             throw "unknown protocol version";
         }
