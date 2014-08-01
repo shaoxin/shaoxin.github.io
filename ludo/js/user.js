@@ -24,6 +24,15 @@ function User(type, isready, senderID, name) {
 	this.ishost = false;
 };
 
+User.checkUserType = function (type) {
+	if (type == User.TYPE.COMPUTER ||
+			type == User.TYPE.UNAVAILABLE ||
+			type == User.TYPE.HUMAN ||
+			type == User.TYPE.NOBODY)
+		return true;
+	return false;
+};
+
 User.prototype.setready = function() {
 	this.isready = true;
 };

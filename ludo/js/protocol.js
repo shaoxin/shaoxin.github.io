@@ -124,49 +124,129 @@ function LudoProtocol() {
     this.prot_version = 0; /* could accept any supported version */
 };
 
+LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
+	try {
+		var user = new User(User.TYPE.HUMAN, User.UNREADY,
+				senderID, msgObj.username);
+		ret = game.addUser(user);
+		if (ret.val && user.ishost) {
+			console.log('LudoProtocol version(' +
+						msgObj.prot_version +
+						') is set the same as host');
+			this.prot_version = msgObj.prot_version;
+		}
+
+		var reply = new Object();
+		reply.command = LudoProtocol.COMMAND.connect + '_reply';
+		reply.ret = ret.val;
+		if (ret.val) {
+			reply.ishost = user.ishost;
+			reply.level = game.level;
+			reply.player_status = [];
+			for (i=0; i<game.players.length; i++) {
+				var p = game.players[i];
+				var ps = new Object();
+				var user = p.getUser();
+
+				ps.color = p.color;
+				ps.user_type = user.type;
+				ps.isready = user.isready;
+				ps.username = user.name;
+
+				reply.player_status.push(ps);
+			}
+		} else {
+			reply.error = ret.detail;
+		}
+		this.sendMsg(senderID, reply);
+	} catch (err) {
+	}
+};
+
+LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
+	try {
+		var reply = new Object();
+		reply.command = LudoProtocol.COMMAND.pickup + '_reply';
+
+		var request_user = game.getUser(senderID);
+		if (request_user == null)
+			throw "pickup without connection";
+		var target_user_type = msgObj.user_type;
+		if (User.checkUserType(target_user_type) == false)
+			throw "unsupported user type " + target_user_type;
+
+		var player = game.getPlayerFromColor(msgObj.color);
+		var current_user = player.getUser(msgObj.color);
+
+		if (target_user_type == current_user.type)
+			throw "no change for user type";
+
+		if (request_user.ishost == true) {
+			if (target_user_type == User.TYPE.COMPUTER)
+				new_user = game.user_computer;
+			else if (target_user_type == User.TYPE.UNAVAILABLE)
+				new_user = game.user_unavailable;
+			else if (target_user_type == User.TYPE.NOBODY)
+				new_user == game.user_nobody;
+			else if (target_user_type == User.TYPE.HUMAN)
+				new_user = request_user;
+		} else if (current_user.type == User.TYPE.COMPUTER ||
+				current_user.type == User.TYPE.UNAVAILABLE ||
+				target_user_type == User.TYPE.COMPUTER ||
+				target_user_type == User.TYPE.UNAVAILABLE) {
+			throw "not enough privilege";
+		} else if (target_user_type == User.TYPE.HUMAN) {
+			if (current_user.type == User.TYPE.NOBODY) {
+				new_user = request_user;
+			} else {
+				throw "target_user_type human: can't get here";
+			}
+		} else if (target_user_type == User.TYPE.NOBODY) {
+			if (current_user.type == User.TYPE.HUMAN) {
+				if (request_user == current_user) {
+					new_user = game.user_nobody;
+				} else {
+					throw "not enough privilege";
+				}
+			} else {
+				throw "target_user_type nobody: can't get here";
+			}
+		} else {
+			throw "onPickup: can't get here";
+		}
+
+		player.setUser(request_user);
+
+		reply.ret = true;
+		this.sendMsg(senderID, reply);
+
+		var broadcast_msg = new Object();
+		broadcast_msg.command =
+			LudoProtocol.COMMAND.pickup + '_notify';
+		var player_status = new Object();
+		player_status.color = color;
+		player_status.user_type = target_user_type;
+		player_status.isready = new_user.isready;
+		broadcast_msg.player_status = player_status;
+		this.broadcast(broadcast_msg);
+	} catch (err) {
+		reply.ret = false;
+		reply.error = err;
+		this.sendMsg(senderID, reply);
+	}
+};
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 	try {
 		switch (msgObj.command) {
 			case LudoProtocol.COMMAND.connect:
-				var user = new User(User.TYPE.HUMAN, User.UNREADY,
-						senderID, msgObj.username);
-				ret = game.addUser(user);
-				if (ret.val && user.ishost) {
-					console.log('LudoProtocol version(' +
-								msgObj.prot_version +
-								') is set the same as host');
-					this.prot_version = msgObj.prot_version;
-				}
-
-				var reply = new Object();
-				reply.command = LudoProtocol.COMMAND.connect + '_reply';
-				reply.ret = ret.val;
-				if (ret.val) {
-					reply.ishost = user.ishost;
-					reply.level = game.level;
-					reply.player_status = [];
-					for (i=0; i<game.players.length; i++) {
-						var p = game.players[i];
-						var ps = new Object();
-						var user = p.getUser();
-
-						ps.color = p.color;
-						ps.user_type = user.type;
-						ps.isready = user.isready;
-						ps.username = user.name;
-
-						reply.player_status.push(ps);
-					}
-				} else {
-					reply.error = ret.detail;
-				}
-				this.sendMsg(senderID, reply);
+				this.parseProt_1_onConnect(senderID, msgObj);
 				break;
 
 			case LudoProtocol.COMMAND.setlevel:
 				break;
 
 			case LudoProtocol.COMMAND.pickup:
+				this.parseProt_1_onPickup(senderID, msgObj);
 				break;
 
 			case LudoProtocol.COMMAND.getready:
@@ -225,6 +305,12 @@ LudoProtocol.prototype.sendMsg = function (senderID, msgObj, keepHeader) {
 		msgObj.prot_version = this.prot_version;
 	}
 	game.messageBus.send(senderID, JSON.stringify(msgObj));
+};
+
+LudoProtocol.prototype.broadcast = function (msgObj) {
+	msgObj.MAGIC = LudoProtocol.MAGIC;
+	msgObj.prot_version = this.prot_version;
+	game.messageBus.broadcast(JSON.stringify(msgObj));
 };
 
 global.LudoProtocol = LudoProtocol;

@@ -116,6 +116,12 @@
 	function getUser(senderID) {
 		return game.users[senderID] || null;
 	};
+	function getUserFromColor(color) {
+		var player = game.players[color];
+		if (player === undefined)
+			return null;
+		return player;
+	};
 
     function onload() {
         //todo remove
@@ -126,6 +132,7 @@
 
 		game.addUser = addUser;
 		game.getUser = getUser;
+		game.getUserFromColor = getUserFromColor;
 
 		game.numDone = 0;
         game.playerList = $('#players-list');
