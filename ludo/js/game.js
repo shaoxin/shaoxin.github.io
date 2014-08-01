@@ -191,7 +191,7 @@
           //displayText(event.data);
           // inform all senders on the CastMessageBus of the incoming message event
           // sender message listener will be invoked
-          game.messageBus.send(event.senderId, event.data);
+          game.messageBus.send(event.senderId, event.data+"_test");
 
           var msg = event.data;
           console.log("onMessage msg.command=" + msg.command);
