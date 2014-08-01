@@ -15,7 +15,22 @@ var Board = function (id) {
         [9, 4], [10, 4], [10, 5], [10, 6], [9, 6], [8, 6], [7, 6], [6, 6], [6, 7],
         [6, 8], [6, 9], [6, 10], [5, 10]
     ];
+	this.startLocation = {
+		red: 0,
+		green: 10,
+		yellow: 20,
+		blue: 30,
+	};
     this.reset();
+};
+
+Board.prototype.getPath = function(color) {
+	var start = this.startLocation[color],
+	    p = this.path,
+		size = p.length;
+
+    ret = start > 0 ? p.slice(start, size).concat(p.slice(0, start)) : [].concat(p);
+	return ret;
 };
 
 Board.prototype.reset = function () {

@@ -160,6 +160,9 @@ LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
 		}
 		this.sendMsg(senderID, reply);
 	} catch (err) {
+		reply.ret = false;
+		reply.error = err;
+		this.sendMsg(senderID, reply);
 	}
 };
 
@@ -168,7 +171,7 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 		var reply = new Object();
 		reply.command = LudoProtocol.COMMAND.pickup + '_reply';
 
-		var request_user = game.getUser(senderID);
+		var request_user = game.getUserFromSenderID(senderID);
 		if (request_user == null)
 			throw "pickup without connection";
 		var target_user_type = msgObj.user_type;
@@ -176,7 +179,7 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 			throw "unsupported user type " + target_user_type;
 
 		var player = game.getPlayerFromColor(msgObj.color);
-		var current_user = player.getUser(msgObj.color);
+		var current_user = player.getUser();
 
 		if (target_user_type == current_user.type)
 			throw "no change for user type";

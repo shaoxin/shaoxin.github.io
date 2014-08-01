@@ -8,6 +8,7 @@
             board: null,
             current: -1,
             players: [],
+            playersColorIndex: {},
             playerList: null,
             pickupIndex: 0,
             proto: null,
@@ -27,10 +28,10 @@
           WAIT_FOR_DICE: 'wait_for_rolling_dice',
           WAIT_FOR_PAWN: 'wait_for_moving_pawn'
         },
-        RED = 2,
-        GREEN = 3,
-        YELLOW = 4,
-        BLUE = 5;
+        RED = 'red',
+        GREEN = 'green',
+        YELLOW = 'yellow',
+        BLUE = 'blue';
 
     function playAward() {
         game.board.dice.focus();
@@ -38,13 +39,23 @@
         game.stat = GAME_STATUS.WAIT_FOR_DICE;
     }
 
+	function getCurrentPlayer() {
+		return game.players[game.current];
+	}
+	function getPlayerFromIndex(index) {
+		return game.players[index] || null;
+	}
+	function getPlayerFromColor(color) {
+		return game.playersColorIndex[color] || null;
+	}
+
     function nextPlayer() {
         var next = game.current,
             arrow = $('.arrow'),
             i = 0;
 
         if (game.numDone == 4) {
-            game.players[game.current].blur();
+            getCurrentPlayer.blur();
             log('all players are done, need to restart the game');
             return;
         }
@@ -70,16 +81,16 @@
             }
         }
         if (game.current >= 0)
-            log("player switch from " + game.players[game.current].color +
-                " to " + game.players[next].color);
+            log("player switch from " + getCurrentPlayer().color +
+                " to " + getPlayerFromIndex(next).color);
         else
-            log("player " + game.players[next].color + " starts");
+            log("player " + getPlayerFromIndex(next).color + " starts");
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
         //game.players[game.current].focus();
         game.board.dice.focus();
         game.board.dice.showHint();
-        game.board.dice.setPlayer(game.current + 2);
+        game.board.dice.setPlayer(getCurrentPlayer());
         game.stat = GAME_STATUS.WAIT_FOR_DICE;
     }
 
@@ -89,6 +100,7 @@
         player.setUser(game.user_computer);
 
         game.players.push(player);
+		game.playersColorIndex[color] = player;
 
         // todo convert to component with focus indicator etc.
         game.playerList.append(
@@ -113,14 +125,8 @@
 		}
 		return {val: true, detail: ""};
 	};
-	function getUser(senderID) {
+	function getUserFromSenderID(senderID) {
 		return game.users[senderID] || null;
-	};
-	function getUserFromColor(color) {
-		var player = game.players[color];
-		if (player === undefined)
-			return null;
-		return player;
 	};
 
     function onload() {
@@ -131,8 +137,7 @@
         global.rollDoneHandler = rollDoneHandler;
 
 		game.addUser = addUser;
-		game.getUser = getUser;
-		game.getUserFromColor = getUserFromColor;
+		game.getUserFromSenderID = getUserFromSenderID;
 
 		game.numDone = 0;
         game.playerList = $('#players-list');
@@ -224,7 +229,7 @@
     }
 
     function rollDoneHandler(newValue) {
-        var player = game.players[game.current];
+        var player = getCurrentPlayer();
 
         log('rollDoneHandler: currentPlayer=' + player.color + ' dice=' + newValue);
 
@@ -235,12 +240,12 @@
             nextPlayer();
         } else {
             game.stat = GAME_STATUS.WAIT_FOR_PAWN;
-            game.players[game.current].focus();
+            getCurrentPlayer().focus();
         }
     }
 
     function handlemsg_prehistoric(channel, msg) {
-        var player = game.players[game.current];
+        var player = getCurrentPlayer();
         var pawn = player.getCurrentPawn();
 
         log("'" + msg + "' received in handlemsg from channel " + channel);
@@ -261,7 +266,7 @@
         }
 
         if (player.channel != channel) {
-            log("it's not your turn");
+            log("" + channel + ", it's not your turn, but for " + player.channel);
             return;
         }
 

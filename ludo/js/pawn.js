@@ -47,7 +47,7 @@ Pawn.prototype.focus = function () {
 
 
 Pawn.prototype.arrive = function () {
-    this.$elem.addClass('color');
+    this.$elem.addClass('arrive');
     this.isArrived = true;
     this.blur();
 };
@@ -100,7 +100,8 @@ Pawn.prototype.move = function (steps, callback) {
 
 Pawn.prototype.step = function (field) {
     if (field) {
-        log("[" + this.player.color + "][" + this.pawnIndex + "](" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
+        log("[" + this.player.color + "][" + this.pawnIndex + "]" +
+			"(" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
         this.x = field.x;
         this.y = field.y;
     }

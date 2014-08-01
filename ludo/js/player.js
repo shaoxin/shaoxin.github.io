@@ -25,11 +25,7 @@ Player.prototype.getUser = function() {
 };
 
 Player.prototype.setPath = function () {
-    var start = (this.color - 2) * 10,
-        p = this.board.path,
-        size = p.length;
-
-    this.path = start > 0 ? p.slice(start, size).concat(p.slice(0, start)) : [].concat(p);
+	this.path = this.board.getPath(this.color);
     this.path = this.path.concat(this.end.getPath());
 };
 

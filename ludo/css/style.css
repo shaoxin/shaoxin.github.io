@@ -66,19 +66,19 @@ body {
     line-height: 40px;
 }
 
-.player-2 .icon {
+.player-red .icon {
     background-position: -320px 0;
 }
 
-.player-3 .icon {
+.player-green .icon {
     background-position: -320px -40px;
 }
 
-.player-4 .icon {
+.player-yellow .icon {
     background-position: -320px -80px;
 }
 
-.player-5 .icon {
+.player-blue .icon {
     background-position: -320px -120px;
 }
 
@@ -129,36 +129,36 @@ body {
     cursor: pointer;
 }
 
-.pawn.color {
+.pawn.arrive {
 	opacity:0.4;
 	filter:alpha(opacity=40);
 }
 
-.pawn-2.focused {
+.pawn-red.focused {
     -webkit-animation-name: focusred;
 }
 
-.pawn-3 {
+.pawn-green {
     background-position: 0 -50px;
 }
 
-.pawn-3.focused {
+.pawn-green.focused {
     -webkit-animation-name: focusgreen;
 }
 
-.pawn-4 {
+.pawn-yellow {
     background-position: 0 -100px;
 }
 
-.pawn-4.focused {
+.pawn-yellow.focused {
     -webkit-animation-name: focusyellow;
 }
 
-.pawn-5 {
+.pawn-blue {
     background-position: 0 -150px;
 }
 
-.pawn-5.focused {
+.pawn-blue.focused {
     -webkit-animation-name: focusblue;
 }
 
@@ -202,19 +202,19 @@ body {
     -webkit-transition: top .1s linear, left .1s linear;
 }
 
-.dice-wrap-2 {
+.dice-wrap-red {
     background-color: rgb(183, 37, 30);
 }
 
-.dice-wrap-3 {
+.dice-wrap-green {
     background-color: rgb(28, 85, 17);
 }
 
-.dice-wrap-4 {
+.dice-wrap-yellow {
     background-color: rgb(154, 115, 24);
 }
 
-.dice-wrap-5 {
+.dice-wrap-blue {
     background-color: rgb(36, 63, 84);
 }
 
