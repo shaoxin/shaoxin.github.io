@@ -218,7 +218,7 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 			throw "onPickup: can't get here";
 		}
 
-		player.setUser(request_user);
+		player.setUser(new_user);
 
 		reply.ret = true;
 		this.sendMsg(senderID, reply);

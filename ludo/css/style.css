@@ -59,7 +59,7 @@ body {
     color: #fff;
     font-weight: bold;
     font-size: 18px;
-    text-transform: uppercase;
+    //text-transform: uppercase;
     text-shadow: 1px 1px 2px #000;
     text-overflow: ellipsis;
     white-space: nowrap;

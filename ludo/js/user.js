@@ -12,7 +12,7 @@ User.TYPE = {
         	COMPUTER: 'computer',
         };
 
-function User(type, isready, senderID, name) {
+function User(type, isready, name, senderID) {
 	this.type = type;
 	this.isready = isready;
 	if (name === undefined) {

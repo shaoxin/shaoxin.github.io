@@ -94,18 +94,20 @@
         game.stat = GAME_STATUS.WAIT_FOR_DICE;
     }
 
-    function addPlayer(name, color) {
+    function addPlayer(name, color, user) {
     	var player = new Player(name, color, game.board);
-
-        player.setUser(game.user_computer);
 
         game.players.push(player);
 		game.playersColorIndex[color] = player;
 
         // todo convert to component with focus indicator etc.
+		var inner = '<div class="icon"></div>';
         game.playerList.append(
-            '<li class="player player-' + color + '"><div class="icon"></div>' + name + '</li>'
+            '<li id="li-' + color + '" class="player player-' + color + '">' + inner + '</li>'
         );
+
+        player.setUser(user);
+
     }
     function addUser(user) {
 		if (game.users[user.senderID] == undefined) {
@@ -150,25 +152,20 @@
         game.board.dice = new Dice('content');
 
         game.users = {};
-        game.user_unavailable = new User(User.TYPE.UNAVAILABLE);
-        game.user_nobody      = new User(User.TYPE.NOBODY);
-        game.user_computer    = new User(User.TYPE.COMPUTER, User.READY);
+        game.user_unavailable =
+			new User(User.TYPE.UNAVAILABLE, User.UNREADY, 'N/A');
+        game.user_nobody =
+			new User(User.TYPE.NOBODY, User.UNREADY, 'Nobody');
+        game.user_computer =
+			new User(User.TYPE.COMPUTER, User.READY, 'AI');
 
-        addPlayer('Player 1', RED);
-        addPlayer('Player 2', GREEN);
-        addPlayer('Player 3', YELLOW);
-        addPlayer('Player 4', BLUE);
+        addPlayer('Player 1', RED,    game.user_nobody);
+        addPlayer('Player 2', GREEN,  game.user_nobody);
+        addPlayer('Player 3', YELLOW, game.user_nobody);
+        addPlayer('Player 4', BLUE,   game.user_nobody);
 
         game.status = GAME_STATUS.WAIT_FOR_CONNECTION;
         nextPlayer();
-
-        str = '{"magic": "ONLINE", "prot_version": 1, "command": "connect"}';
-        //str = '{ "name": "strong", "header": {"age": 16 } }';
-        log(typeof(str));
-        js  = $.parseJSON(str);
-        log(typeof js);
-        log(js.magic);
-		log(JSON.stringify(js));
 
         log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);

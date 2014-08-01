@@ -17,6 +17,8 @@ var Player = function (name, color, board) {
 };
 
 Player.prototype.setUser = function(user) {
+	var e = $('#li-' + this.color);
+	e.html('<div class="icon"></div>' + user.name);
     this.user = user;
 };
 
