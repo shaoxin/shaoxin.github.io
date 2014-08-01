@@ -230,14 +230,12 @@
 
         log('rollDoneHandler: currentPlayer=' + player.color + ' dice=' + newValue);
 
-        game.board.dice.blur();
-        game.board.dice.hideHint();
         if ((player.start.getFreeField() === null) &&
                 (newValue !== 6)) {
             nextPlayer();
         } else {
-            game.stat = GAME_STATUS.WAIT_FOR_PAWN;
             getCurrentPlayer().focus();
+            game.stat = GAME_STATUS.WAIT_FOR_PAWN;
         }
     }
 

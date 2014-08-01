@@ -18,8 +18,13 @@ Dice.prototype.roll = function (callback) {
         if (this.busy)
             return;
         this.busy = true;
+
+		that.blur();
+		that.hideHint();
+
         $dice = this.$elem.find('.dice');
         this.$elem.addClass('throw');
+
         setTimeout(function () {
             var vals = [1, 2, 3, 4, 5, 6, 6, 6], // increased chance of rolling 6
                 newValue = vals[~~(Math.random() * 8)];
@@ -33,10 +38,10 @@ Dice.prototype.roll = function (callback) {
             that.$elem.removeClass('throw');
 
             that.value = newValue;
-            that.busy = false;
             if (typeof callback === 'function') {
                 callback(newValue);
             }
+            that.busy = false;
         }, 200);
     }
 };

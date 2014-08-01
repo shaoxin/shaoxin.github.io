@@ -230,7 +230,6 @@ Player.prototype.move = function (distance, pawn) {
             }
 
             pawn.position = nextPos;
-            player.isMoving = false;
             log('player ' + player.color + ':' + pawn.pawnIndex + ' finished moving');
 
             if ((pawn.position == 44) && (player.numArrived < 4)) {
@@ -246,6 +245,7 @@ Player.prototype.move = function (distance, pawn) {
                     ' is onboard, roll dice again');
                 playAward();
             }
+            player.isMoving = false;
         });
 
     return true;
