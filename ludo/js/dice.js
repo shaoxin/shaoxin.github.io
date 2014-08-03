@@ -10,7 +10,7 @@ var Dice = function (parent) {
 
 Dice.prototype.size = 50;
 
-Dice.prototype.roll = function (callback) {
+Dice.prototype.roll = function (callback, cb_outofbusy) {
     var that = this,
         $dice;
 
@@ -42,6 +42,11 @@ Dice.prototype.roll = function (callback) {
                 callback(newValue);
             }
             that.busy = false;
+			// TODO: if it's time for computer to roll/move,
+			//       do it automatically
+            if (typeof cb_outofbusy === 'function') {
+                cb_outofbusy(newValue);
+            }
         }, 200);
     }
 };

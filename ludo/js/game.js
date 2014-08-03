@@ -18,6 +18,7 @@
             user_nobody: null,
             user_unavailable: null,
             user_host: null,
+            user_test: null,
             num_user: 0,
             users: {},
 
@@ -28,6 +29,7 @@
           WAIT_FOR_DICE: 'wait_for_rolling_dice',
           WAIT_FOR_PAWN: 'wait_for_moving_pawn'
         },
+		/* CSS are hard coded following these colors*/
         RED = 'red',
         GREEN = 'green',
         YELLOW = 'yellow',
@@ -56,7 +58,7 @@
 
         if (game.numDone == 4) {
             getCurrentPlayer.blur();
-            log('all players are done, need to restart the game');
+            console.log('all players are done, need to restart the game');
             return;
         }
 
@@ -81,10 +83,10 @@
             }
         }
         if (game.current >= 0)
-            log("player switch from " + getCurrentPlayer().color +
+            console.log("player switch from " + getCurrentPlayer().color +
                 " to " + getPlayerFromIndex(next).color);
         else
-            log("player " + getPlayerFromIndex(next).color + " starts");
+            console.log("player " + getPlayerFromIndex(next).color + " starts");
         game.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + game.current);
         //game.players[game.current].focus();
@@ -137,6 +139,8 @@
         global.nextPlayer = nextPlayer;
         global.playAward = playAward;
         global.rollDoneHandler = rollDoneHandler;
+		global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
+		global.GAME_STATUS = GAME_STATUS;
 
 		game.addUser = addUser;
 		game.getUserFromSenderID = getUserFromSenderID;
@@ -144,8 +148,8 @@
 		game.numDone = 0;
         game.playerList = $('#players-list');
 
-        log(navigator.userAgent.toLowerCase());
-        log('init game');
+        console.log(navigator.userAgent.toLowerCase());
+        console.log('init game');
 
         game.proto = new LudoProtocol();
         game.board = new Board('board');
@@ -153,11 +157,11 @@
 
         game.users = {};
         game.user_unavailable =
-			new User(User.TYPE.UNAVAILABLE, User.UNREADY, 'N/A');
+			new User(User.TYPE.UNAVAILABLE, User.UNREADY);
         game.user_nobody =
-			new User(User.TYPE.NOBODY, User.UNREADY, 'Nobody');
+			new User(User.TYPE.NOBODY, User.UNREADY);
         game.user_computer =
-			new User(User.TYPE.COMPUTER, User.READY, 'AI');
+			new User(User.TYPE.COMPUTER, User.READY);
 
         addPlayer('Player 1', RED,    game.user_nobody);
         addPlayer('Player 2', GREEN,  game.user_nobody);
@@ -167,7 +171,7 @@
         game.status = GAME_STATUS.WAIT_FOR_CONNECTION;
         nextPlayer();
 
-        log('init chrome cast handler');
+        console.log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
         game.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
         console.log('Starting Receiver Manager');
@@ -228,46 +232,69 @@
     function rollDoneHandler(newValue) {
         var player = getCurrentPlayer();
 
-        log('rollDoneHandler: currentPlayer=' + player.color + ' dice=' + newValue);
+        console.log('rollDoneHandler inbusy: currentPlayer=' + player.color +
+				' dice=' + newValue);
 
         if ((player.start.getFreeField() === null) &&
                 (newValue !== 6)) {
             nextPlayer();
         } else {
+			// TODO: select a pawn before focus the player
             getCurrentPlayer().focus();
             game.stat = GAME_STATUS.WAIT_FOR_PAWN;
         }
     }
+	function rollDoneHandler_outofbusy(diceValue) {
+        var player = getCurrentPlayer();
+		var user = player.getUser();
+
+        console.log('rollDoneHandler postbusy: currentPlayer=' + player.color +
+				' dice=' + diceValue);
+
+		if (user.type != User.TYPE.COMPUTER) {
+			return;
+		}
+		if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
+            game.board.dice.roll(rollDoneHandler,
+						rollDoneHandler_outofbusy);
+		} else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
+			player.selectPawnAndMove(diceValue);
+		}
+	};
 
     function handlemsg_prehistoric(channel, msg) {
         var player = getCurrentPlayer();
         var pawn = player.getCurrentPawn();
 
-        log("'" + msg + "' received in handlemsg from channel " + channel);
+        console.log("'" + msg +
+			"' received in handlemsg from channel " + channel);
 
         if (msg === 'join') {
             var i = game.pickupIndex;
             if (i <= 1) {
                 game.players[2*i].channel = channel;
                 game.players[2*i+1].channel = channel;
-                log('player ' + 2*i + ' and ' + 2*i+1 +
+                console.log('player ' + 2*i + ' and ' + 2*i+1 +
                     ' are allocated to channel ' + channel);
                 i++;
                 game.pickupIndex = i;
             } else {
-                log('no more players could be allocated');
+                console.log('no more players could be allocated');
             }
             return;
         }
 
-        if (player.channel != channel) {
-            log("" + channel + ", it's not your turn, but for " + player.channel);
+		var currentChannel = player.getUser().senderID;
+        if (currentChannel != channel) {
+            console.log("" + channel + ", it's not your turn, but for " +
+					currentChannel);
             return;
         }
 
         if (msg === 'click') {
             if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
-                game.board.dice.roll(rollDoneHandler);
+                game.board.dice.roll(rollDoneHandler,
+						rollDoneHandler_outofbusy);
             } else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
                 player.move(game.board.dice.getValue(), pawn);
             }
@@ -283,7 +310,8 @@
     }
 
     function handlemsg(channel, msg) {
-        log("'" + msg + "' received in handlemsg from channel " + channel);
+        console.log("'" + msg +
+			"' received in handlemsg from channel " + channel);
 
         if (typeof msg === "string") {
             var msgObj = null;
@@ -302,15 +330,35 @@
     }
 
     document.onkeydown = function(event) {
-        log('key ' + event.keyCode + ' pressed!');
+        console.log('key ' + event.keyCode + ' pressed!');
         if (event.keyCode === 13) {
-            handlemsg(0, 'click');
-			handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
+            handlemsg(game.testChannel, 'click');
+			//handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
         } else if (event.keyCode === 37) {
-            handlemsg(0, 'prev');
+            handlemsg(game.testChannel, 'prev');
         } else if (event.keyCode === 39) {
-            handlemsg(0, 'next');
-        }
+            handlemsg(game.testChannel, 'next');
+        } else if (event.keyCode === 67 /*'c'*/) {
+			if (game.testChannel == "AI")
+				return;
+			game.testChannel = "AI";
+			game.playersColorIndex[RED].setUser(game.user_computer);
+			game.playersColorIndex[GREEN].setUser(game.user_computer);
+			game.playersColorIndex[YELLOW].setUser(game.user_computer);
+			game.playersColorIndex[BLUE].setUser(game.user_computer);
+            handlemsg(game.testChannel, 'click');
+        } else if (event.keyCode === 73 /*'i'*/) {
+			if (game.user_test)
+				return;
+			game.testChannel = "testChannel";
+			game.user_test =
+				new User(User.TYPE.HUMAN, User.READY, "test",
+						game.testChannel);
+			game.playersColorIndex[RED].setUser(game.user_test);
+			game.playersColorIndex[GREEN].setUser(game.user_test);
+			game.playersColorIndex[YELLOW].setUser(game.user_test);
+			game.playersColorIndex[BLUE].setUser(game.user_test);
+		}
     }
 
     global.addEventListener('load', function () {

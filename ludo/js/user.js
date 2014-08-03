@@ -15,11 +15,17 @@ User.TYPE = {
 function User(type, isready, name, senderID) {
 	this.type = type;
 	this.isready = isready;
-	if (name === undefined) {
-		this.name = "";
-	} else {
-		this.name = name;
+	if (type == User.TYPE.UNAVAILABLE) {
+        name = "N/A";
+		senderID = undefined;
+	} else if (type == User.TYPE.COMPUTER)
+        senderID = name = "AI";
+    else if (type == User.TYPE.NOBODY) {
+		name = "Nobody";
+		senderID = undefined;
 	}
+
+	this.name = name;
 	this.senderID = senderID;
 	this.ishost = false;
 };

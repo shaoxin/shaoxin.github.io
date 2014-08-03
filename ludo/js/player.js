@@ -10,7 +10,6 @@ var Player = function (name, color, board) {
     this.isFocused = false;
     this.isFinished = false;
     this.numArrived = 0;
-    this.channel = 0;
     this.isMoving = false;
 
     this.user = null;
@@ -105,6 +104,33 @@ Player.prototype.prevPawn = function () {
     this.pawns[this.currentPawn].focus();
 }
 
+Player.prototype.selectPawnAndMove = function(diceValue) {
+	// TODO: simply select a pawn for diceValue
+	// if current pawn is OK, that's it
+	// otherwise do some simple search
+
+	if (this.pawns[this.currentPawn].position >= 0) {
+		this.move(diceValue, this.pawns[this.currentPawn]);
+		return;
+	}
+
+	i = 0;
+	while (this.pawns[i]) {
+		if (this.pawns[i].isArrived == false &&
+				this.pawns[i].position >= 0) {
+			this.move(diceValue, pawn);
+			return;
+		}
+		i++;
+	}
+	if (diceValue == 6)
+		this.move(diceValue, this.pawns[this.currentPawn]);
+	else
+		console.log("no pawn selected to move, currentPawn=" +
+				this.currentPawn + " pos=" +
+				this.pawns[this.currentPawn].position);
+};
+
 Player.prototype.focus = function () {
     this.isFocused = true;
     this.getCurrentPawn().focus();
@@ -113,19 +139,6 @@ Player.prototype.focus = function () {
 Player.prototype.blur = function () {
     this.isFocused = false;
     this.getCurrentPawn().blur();
-};
-
-Player.prototype.isMovable = function () {
-    var i = 0;
-
-    while (this.pawns[i]) {
-        if (this.pawns[i].isMovable()) {
-            return true;
-        }
-        i++;
-    }
-
-    return false;
 };
 
 Player.prototype.move = function (distance, pawn) {
@@ -246,6 +259,18 @@ Player.prototype.move = function (distance, pawn) {
                 playAward();
             }
             player.isMoving = false;
+
+			// TODO: if it's time for computer to roll
+			//       do it automatically
+			user = player.getUser();
+
+			if (user.type != User.TYPE.COMPUTER)
+				return;
+			if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
+				game.board.dice.roll(rollDoneHandler,
+						rollDoneHandler_outofbusy);
+			} else
+				console.log("game status error: " + game.stat);
         });
 
     return true;

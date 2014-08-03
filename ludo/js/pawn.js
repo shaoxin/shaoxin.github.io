@@ -128,15 +128,3 @@ Pawn.prototype.kill = function () {
         this.position = -1;
     }
 };
-
-Pawn.prototype.isMovable = function () {
-    var p = this.position,
-        end = this.player.end;
-
-    if (p === 43 || (p === 42 && end.checkField(3)) ||
-        (p === 41 && end.checkField(3) && end.checkField(2))) {
-        return false;
-    }
-
-    return true;
-};
