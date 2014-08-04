@@ -262,6 +262,7 @@ Player.prototype.move = function (distance, pawn) {
 
 			// TODO: if it's time for computer to roll
 			//       do it automatically
+			player = game.getCurrentPlayer();
 			user = player.getUser();
 
 			if (user.type != User.TYPE.COMPUTER)

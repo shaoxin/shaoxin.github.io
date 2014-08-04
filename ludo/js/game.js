@@ -142,6 +142,7 @@
 		global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
 		global.GAME_STATUS = GAME_STATUS;
 
+		game.getCurrentPlayer = getCurrentPlayer;
 		game.addUser = addUser;
 		game.getUserFromSenderID = getUserFromSenderID;
 
@@ -339,15 +340,21 @@
         } else if (event.keyCode === 39) {
             handlemsg(game.testChannel, 'next');
         } else if (event.keyCode === 67 /*'c'*/) {
-			if (game.testChannel == "AI")
+			if (typeof computer_kicked_off !== 'undefined') {
+				console.log("computer battle already started");
 				return;
-			game.testChannel = "AI";
+			}
+			console.log("computer battle starts");
+			computer_kicked_off = true;
+
 			game.playersColorIndex[RED].setUser(game.user_computer);
 			game.playersColorIndex[GREEN].setUser(game.user_computer);
 			game.playersColorIndex[YELLOW].setUser(game.user_computer);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
-            handlemsg(game.testChannel, 'click');
-        } else if (event.keyCode === 73 /*'i'*/) {
+
+            game.board.dice.roll(rollDoneHandler,
+						rollDoneHandler_outofbusy);
+        } else if (event.keyCode === 85 /*'u'*/) {
 			if (game.user_test)
 				return;
 			game.testChannel = "testChannel";
@@ -355,9 +362,9 @@
 				new User(User.TYPE.HUMAN, User.READY, "test",
 						game.testChannel);
 			game.playersColorIndex[RED].setUser(game.user_test);
-			game.playersColorIndex[GREEN].setUser(game.user_test);
-			game.playersColorIndex[YELLOW].setUser(game.user_test);
-			game.playersColorIndex[BLUE].setUser(game.user_test);
+			game.playersColorIndex[GREEN].setUser(game.user_computer);
+			game.playersColorIndex[YELLOW].setUser(game.user_computer);
+			game.playersColorIndex[BLUE].setUser(game.user_computer);
 		}
     }
 
