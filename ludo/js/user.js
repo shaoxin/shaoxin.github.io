@@ -28,6 +28,7 @@ function User(type, isready, name, senderID) {
 	this.name = name;
 	this.senderID = senderID;
 	this.ishost = false;
+	this.players = {};
 };
 
 User.checkUserType = function (type) {
@@ -41,6 +42,13 @@ User.checkUserType = function (type) {
 
 User.prototype.setready = function() {
 	this.isready = true;
+};
+
+User.prototype.addPlayer = function(player) {
+	this.players[player.color] = player;
+};
+User.prototype.removePlayer = function(player) {
+	delete this.players[player.color];
 };
 
 global.User = User;

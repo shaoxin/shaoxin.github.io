@@ -168,7 +168,7 @@ LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
 
 LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 	try {
-		var reply = new Object();
+		var reply = {};
 		reply.command = LudoProtocol.COMMAND.pickup + '_reply';
 
 		var request_user = game.getUserFromSenderID(senderID);
@@ -222,22 +222,79 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 
 		reply.ret = true;
 		this.sendMsg(senderID, reply);
-
-		var broadcast_msg = new Object();
-		broadcast_msg.command =
-			LudoProtocol.COMMAND.pickup + '_notify';
-		var player_status = new Object();
-		player_status.color = color;
-		player_status.user_type = target_user_type;
-		player_status.isready = new_user.isready;
-		broadcast_msg.player_status = player_status;
-		this.broadcast(broadcast_msg);
 	} catch (err) {
+		reply = {};
+		reply.ret = false;
+		reply.error = err;
+		this.sendMsg(senderID, reply);
+		return;
+	}
+
+	var broadcastMsg = {};
+	broadcastMsg.command =
+		LudoProtocol.COMMAND.pickup + '_notify';
+	var player_status = {};
+	player_status.color = color;
+	player_status.user_type = target_user_type;
+	player_status.isready = new_user.isready;
+	broadcastMsg.player_status = player_status;
+	this.broadcast(broadcastMsg);
+
+	this.broadcastStartGame();
+};
+
+LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
+	var reply = {};
+	reply.command = LudoProtocol.COMMAND.getready + '_reply';
+	try {
+		var request_user = game.getUserFromSenderID(senderID);
+		var orig_isready = request_user.isready;
+		request_user.isready = true;
+		reply.ret = true;
+
+		this.sendMsg(senderID, reply);
+
+		var broadcastMsg = {};
+		broadcastMsg.command = LudoProtocol.COMMAND.getready + '_notify';
+		broadcastMsg.colors = [];
+		for (p in request_user.players) {
+			reply.colors.push(p);
+		}
+		this.broadcast(broadcastMsg);
+
+		if (orig_isready == false)
+			this.broadcastStartGame();
+	} catch(err) {
+		reply = {};
 		reply.ret = false;
 		reply.error = err;
 		this.sendMsg(senderID, reply);
 	}
 };
+
+LudoProtocol.prototype.broadcastStartGame = function() {
+	i = 0;
+	while (p = game.players[i]) {
+		u = p.getUser();
+		if (u.type == User.TYPE.NOBODY) {
+			console.log('player ' + p.color +
+					' is not allocated a user do NOT start game');
+			return;
+		}
+		if (u.type == User.TYPE.HUMAN && u.isready == false) {
+			console.log('player ' + p.color + ' user ' + u.name +
+					' is not ready, do NOT start game');
+			return;
+		}
+		i++;
+	}
+	console.log('eveybody is ready, let us go!');
+	broadcastMsg = {};
+	broadcastMsg.command =
+		LudoProtocol.COMMAND.startgame + '_notify';
+	this.broadcast(broadcastMsg);
+};
+
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 	try {
 		switch (msgObj.command) {
@@ -253,6 +310,7 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 				break;
 
 			case LudoProtocol.COMMAND.getready:
+				this.parseProt_1_onGetReady(senderID, msgObj);
 				break;
 
 			case LudoProtocol.COMMAND.disready:

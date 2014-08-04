@@ -16,9 +16,17 @@ var Player = function (name, color, board) {
 };
 
 Player.prototype.setUser = function(user) {
+	if (this.user)
+		this.user.removePlayer(this);
+
 	var e = $('#li-' + this.color);
 	e.html('<div class="icon"></div>' + user.name);
+
     this.user = user;
+	user.addPlayer(this);
+
+	console.log("player-" + this.color +
+			" is occupied by user '" + user.name + "'");
 };
 
 Player.prototype.getUser = function() {
