@@ -38,15 +38,15 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
             that.$elem.removeClass('throw');
 
             that.value = newValue;
-            if (typeof callback === 'function') {
-                callback(newValue);
-            }
-            that.busy = false;
-			// TODO: if it's time for computer to roll/move,
-			//       do it automatically
-            if (typeof cb_outofbusy === 'function') {
-                cb_outofbusy(newValue);
-            }
+			setTimeout(function() {
+				if (typeof callback === 'function')
+					callback(newValue);
+				setTimeout(function() {
+					that.busy = false;
+					if (typeof cb_outofbusy === 'function')
+						cb_outofbusy(newValue);
+				}, 300);
+			}, 300);
         }, 200);
     }
 };
