@@ -127,7 +127,7 @@ function LudoProtocol() {
 LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
 	try {
 		var user = new User(User.TYPE.HUMAN, User.UNREADY,
-				senderID, msgObj.username);
+				msgObj.username, senderID);
 		ret = game.addUser(user);
 		if (ret.val && user.ishost) {
 			console.log('LudoProtocol version(' +
