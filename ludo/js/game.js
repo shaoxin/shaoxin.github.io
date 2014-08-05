@@ -148,6 +148,8 @@
 		global.GAME_STATUS = GAME_STATUS;
 
 		game.getCurrentPlayer = getCurrentPlayer;
+		game.getPlayerFromColor = getPlayerFromColor;
+		game.getPlayerFromIndex = getPlayerFromIndex;
 		game.addUser = addUser;
 		game.getUserFromSenderID = getUserFromSenderID;
 
