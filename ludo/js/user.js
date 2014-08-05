@@ -6,7 +6,7 @@
 User.READY = true;
 User.UNREADY = false;
 User.TYPE = {
-        	UNAVAILABLE: 'unavailabe',
+        	UNAVAILABLE: 'unavailable',
         	NOBODY: 'nobody',
         	HUMAN: 'human',
         	COMPUTER: 'computer',
