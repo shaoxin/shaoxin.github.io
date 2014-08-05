@@ -82,13 +82,13 @@ Pawn.prototype.move = function (steps, callback) {
     if (steps) {
         this.isMoving = true;
         if (this.field) {
-            this.field.setPawn();
+            this.field.removePawn(this);
         }
 
         doStep(steps, function (field) {
             if (field) {
                 that.field = field;
-                that.field.setPawn(that);
+                that.field.addPawn(that);
             }
             that.isMoving = false;
             if (typeof callback === 'function') {
@@ -122,9 +122,12 @@ Pawn.prototype.kill = function () {
     var field = this.player.start.getFreeField();
     
     if (field) {
-        field.setPawn(this);
         this.field = null;
         this.move([field]);
         this.position = -1;
     }
+};
+
+Pawn.prototype.getKey = function () {
+	return "" + this.player.color + this.pawnIndex;
 };

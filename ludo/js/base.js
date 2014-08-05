@@ -55,28 +55,11 @@ Base.prototype.getFreeField = function () {
 
     while (i < 4) {
         field = this.fields[i];
-        if (!field.getPawn()) {
+        if (field.getPawns().length === 0) {
             return field;
         }
         i++;
     }
 
     return null;
-};
-
-/**
- * Check if base is full to determine if player should have 3 attempts to throw 6
- * @return {Boolean} Base status
- */
-Base.prototype.checkFull = function () {
-    var i = 0;
-
-    while (this.fields[i]) {
-        if (!this.fields[i].getPawn()) {
-            return false;
-        }
-        i++;
-    }
-
-    return true;
 };

@@ -9,6 +9,7 @@ var Field = function (x, y, type) {
     this.y = y;
     this.type = type;
     this.pawn = null;
+	this.pawns = {};
 };
 
 /**
@@ -25,4 +26,41 @@ Field.prototype.getPawn = function () {
  */
 Field.prototype.setPawn = function (pawn) {
     this.pawn = pawn || null;
+};
+
+Field.prototype.addPawn = function (pawn) {
+	var key = pawn.getKey();
+	if (this.pawns[key]) {
+		console.log("pawn " + key + " is already added");
+		return;
+	}
+	this.pawns[key] = pawn;
+};
+
+Field.prototype.removePawn = function (pawn) {
+	var key = pawn.getKey();
+	if (this.pawns[key]) {
+		delete this.pawns[key];
+	} else {
+		console.log("pawn " + key + " is not inside "
+				+ field.x + "," +field.y);
+	}
+};
+
+Field.prototype.getPawns = function (pawn) {
+	var pawns = [];
+	for (p in this.pawns)
+		pawns.push(this.pawns[p]);
+	return pawns;
+};
+
+/**
+ * kill pawns not belonging to newPlayer
+ */
+Field.prototype.kill = function (newPlayer) {
+	for (key in this.pawns) {
+		p = this.pawns[key];
+		if (p.player != newPlayer)
+			p.kill();
+	}
 };

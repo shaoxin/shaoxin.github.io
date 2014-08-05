@@ -49,7 +49,7 @@ Player.prototype.setPawns = function () {
         pawn = new Pawn(this, 0, 0);
         field = this.start.getFreeField();
         if (field) {
-            field.setPawn(pawn);
+            field.addPawn(pawn);
             pawn.move([field]);
         }
         this.pawns[i] = pawn;
@@ -151,9 +151,9 @@ Player.prototype.blur = function () {
 
 Player.prototype.move = function (distance, pawn) {
     var fields = [],
-        nextPawn,
+        nextPawns,
         nextPos,
-        dest,
+        dest, destField,
         steps,
         i,
         switchPlayer = false,
@@ -204,17 +204,18 @@ Player.prototype.move = function (distance, pawn) {
     // moving on the board
     if ((nextPos < 44) || ((nextPos > 44) && (nextPos <= 49))) {
         dest = this.path[nextPos];
-        nextPawn = this.board.getField(dest).getPawn();
+		destField = this.board.getField(dest);
+        nextPawns = destField.getPawns();
         // pawn stands on next field
-        if (nextPawn) {
+        if (nextPawns.length !== 0) {
             // this is players pawn - can't move
-            if (nextPawn.player === this) {
-                if (nextPawn != this.getCurrentPawn()) {
+            if (nextPawns[0].player === this) {
+                //if (nextPawn != this.getCurrentPawn()) {
                    // log("choose another pawn, player " + this.color + ": "+ this.pawnIndex +
                    //     " conflicts with teammate " + nextPawn.pawnIndex);
                    // this.isMoving = false;
                    // return false;
-                }
+                //}
             } else {
                 // this is other player's pawn - kill him
                 killOtherPawn = true;
@@ -238,7 +239,7 @@ Player.prototype.move = function (distance, pawn) {
             var player = pawn.player;
 
             if (killOtherPawn)
-                nextPawn.kill();
+                destField.kill(player);
 
             if (nextPos > 44) {
                 nextPos = 44 - (nextPos - 44);
@@ -283,9 +284,4 @@ Player.prototype.move = function (distance, pawn) {
         });
 
     return true;
-};
-
-Player.prototype.checkReady = function() {
-    this.isFinished = this.end.checkFull();
-    return this.isFinished;
 };
