@@ -258,7 +258,7 @@ LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
 		broadcastMsg.command = LudoProtocol.COMMAND.getready + '_notify';
 		broadcastMsg.colors = [];
 		for (p in request_user.players) {
-			reply.colors.push(p);
+			broadcastMsg.colors.push(p);
 		}
 		this.broadcast(broadcastMsg);
 
