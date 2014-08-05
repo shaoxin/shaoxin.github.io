@@ -75,12 +75,17 @@
             } else {
                 next++;
             }
+			if (game.players[next].getUser().type == User.TYPE.UNAVAILABLE) {
+				console.log("skip unavailable player-" + game.players[next].color);
+				i++;
+				continue;
+			}
             if (game.players[next].numArrived == 4) {
+				console.log("skip finished player-" + game.players[next].color);
                 i++;
                 continue;
-            } else {
-                break;
             }
+            break;
         }
         if (game.current >= 0)
             console.log("player switch from " + getCurrentPlayer().color +
@@ -112,7 +117,7 @@
 
     }
     function addUser(user) {
-		if (game.users[user.senderID] == undefined) {
+		if (game.users[user.senderID]) {
 			console.error("error: user " + user.senderID + " already added");
 			return {val: false, detail: "already added"};
 		}
@@ -125,7 +130,7 @@
 		if (game.num_user == 1) {
 			user.ishost = true;
 			game.user_host = user;
-			console.log("user is chosen to be the host");
+			console.log("user " + user.name + " is chosen to be the host");
 		}
 		return {val: true, detail: ""};
 	};
@@ -363,7 +368,7 @@
 						game.testChannel);
 			game.playersColorIndex[RED].setUser(game.user_test);
 			game.playersColorIndex[GREEN].setUser(game.user_computer);
-			game.playersColorIndex[YELLOW].setUser(game.user_computer);
+			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
 		}
     }
