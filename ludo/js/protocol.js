@@ -222,6 +222,18 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 
 		reply.ret = true;
 		this.sendMsg(senderID, reply);
+
+		var broadcastMsg = {};
+		broadcastMsg.command =
+			LudoProtocol.COMMAND.pickup + '_notify';
+		var player_status = {};
+		player_status.color = msgObj.color;
+		player_status.user_type = target_user_type;
+		player_status.isready = new_user.isready;
+		broadcastMsg.player_status = player_status;
+		this.broadcast(broadcastMsg);
+
+		this.broadcastStartGame();
 	} catch (err) {
 		reply = {};
 		reply.ret = false;
@@ -229,18 +241,6 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 		this.sendMsg(senderID, reply);
 		return;
 	}
-
-	var broadcastMsg = {};
-	broadcastMsg.command =
-		LudoProtocol.COMMAND.pickup + '_notify';
-	var player_status = {};
-	player_status.color = color;
-	player_status.user_type = target_user_type;
-	player_status.isready = new_user.isready;
-	broadcastMsg.player_status = player_status;
-	this.broadcast(broadcastMsg);
-
-	this.broadcastStartGame();
 };
 
 LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
