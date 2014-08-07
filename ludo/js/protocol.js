@@ -230,6 +230,7 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 		player_status.color = msgObj.color;
 		player_status.user_type = target_user_type;
 		player_status.isready = new_user.isready;
+		player_status.username = new_user.name;
 		broadcastMsg.player_status = player_status;
 		this.broadcast(broadcastMsg);
 
