@@ -190,7 +190,7 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 			else if (target_user_type == User.TYPE.UNAVAILABLE)
 				new_user = game.user_unavailable;
 			else if (target_user_type == User.TYPE.NOBODY)
-				new_user == game.user_nobody;
+				new_user = game.user_nobody;
 			else if (target_user_type == User.TYPE.HUMAN)
 				new_user = request_user;
 		} else if (current_user.type == User.TYPE.COMPUTER ||
