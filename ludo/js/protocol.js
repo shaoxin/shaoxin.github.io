@@ -184,7 +184,8 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 		if (target_user_type == current_user.type)
 			throw "no change for user type";
 
-		console.log("ishost:"+request_user.ishost + " " +
+		console.log("player-" + msgObj.color + " " +
+				"ishost:" + request_user.ishost + " requests change: " +
 				"" + current_user.type + "->" + target_user_type);
 		if (request_user.ishost == true) {
 			if (target_user_type == User.TYPE.COMPUTER)
