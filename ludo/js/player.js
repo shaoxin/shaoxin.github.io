@@ -16,8 +16,7 @@ Player.prototype.setUser = function(user) {
 	if (this.user)
 		this.user.removePlayer(this);
 
-	var e = $('#li-' + this.color);
-	e.html('<div class="icon"></div>' + user.name);
+	this.board.updatePlayerList(this.color, user.name);
 
     this.user = user;
 	user.addPlayer(this);
@@ -32,22 +31,16 @@ Player.prototype.getUser = function() {
 
 Player.prototype.initPath = function () {
 	this.path = this.board.getPath(this.color);
+	this.arrivePosition = this.board.getArrivePosition(this.color);
 };
 
 Player.prototype.initPawns = function () {
-    var i = 0,
-        field,
-        pawn;
+    var i = 0, pawn;
 
     this.pawns = [];
 
     for (i = 0; i < 4; i++) {
-        pawn = new Pawn(this, 0, 0, i);
-        field = this.board.getBaseFreeField(this.color);
-        if (field) {
-            field.addPawn(pawn);
-            pawn.move([field]);
-        }
+        pawn = new Pawn(this, i);
         this.pawns[i] = pawn;
         this.board.add(pawn.$elem);
     }
@@ -68,7 +61,8 @@ Player.prototype.resetPawns = function () {
 			continue;
         field = this.board.getBaseFreeField(this.color);
         if (field) {
-            pawn.move([field]);
+            pawn.move([{action: ACTION.RESET,
+				field: field}]);
         } else {
 			console.log("no base field for " + pawn.getKey());
 		}
@@ -195,7 +189,8 @@ Player.prototype.move = function (distance, pawn) {
         }
         // enter the board
         nextPos = 0;
-        fields.push(this.board.getField(this.path[0]));
+		var f = this.board.getField(this.path[0]);
+        fields.push({action: ACTION.NORMAL, field: f});
         switchPlayer = false;
     // pawn is moving on the board
     } else {
@@ -204,7 +199,8 @@ Player.prototype.move = function (distance, pawn) {
         if (steps.length) {
             i = 0;
             while (steps[i]) {
-                fields.push(this.board.getField(steps[i]));
+                fields.push({action: ACTION.NORMAL,
+					field: this.board.getField(steps[i])});
                 i++;
             }
         }
@@ -215,12 +211,37 @@ Player.prototype.move = function (distance, pawn) {
         switchPlayer = true;
       }
     }
-    log("player " + this.color + " is moving to path[" + nextPos + "]");
-    log("path[nextPos] = " +
-        this.path[nextPos][0] + "," + this.path[nextPos][1]);
+
+	// considering JUMP/FLIGHT
+	var destField = this.board.getField(this.path[nextPos]);
+	if (destField.color === this.color) {
+		if (destField.action === ACTION.JUMP) {
+			nextPos = nextPos + this.board.getJUMPdelta(destField);
+			destField = this.board.getField(this.path[nextPos]);
+			fields.push({action: ACTION.JUMP, field: destField});
+
+			if (destField.action === ACTION.FLIGHT) {
+				nextPos = nextPos + this.board.getFLIGHTdelta(destField);
+				destField = this.board.getField(this.path[nextPos]);
+				fields.push({action: ACTION.FLIGHT, field: destField});
+			}
+		} else if (destField.action === ACTION.FLIGHT) {
+			nextPos = nextPos + this.board.getFLIGHTdelta(destField);
+			destField = this.board.getField(this.path[nextPos]);
+			fields.push({action: ACTION.FLIGHT, field: destField});
+
+			nextPos = nextPos + this.board.getJUMPdelta(destField);
+			destField = this.board.getField(this.path[nextPos]);
+			fields.push({action: ACTION.FLIGHT, field: destField});
+		}
+	}
+
+    log("player " + this.color + " is moving to path[" + nextPos + "]:" +
+        this.path[nextPos]);
 
     // moving on the board
-    if ((nextPos < 44) || ((nextPos > 44) && (nextPos <= 49))) {
+    if ((nextPos < this.arrivePosition) ||
+			((nextPos > this.arrivePosition) && (nextPos < this.path.length))) {
         dest = this.path[nextPos];
 		destField = this.board.getField(dest);
         nextPawns = destField.getPawns();
@@ -239,10 +260,10 @@ Player.prototype.move = function (distance, pawn) {
                 killOtherPawn = true;
             }
         }
-    } else if (nextPos == 44) {
+    } else if (nextPos == this.arrivePosition) {
         var field = this.board.getBaseFreeField(this.color);
         if (field) {
-            fields.push(field);
+            fields.push({action: ACTION.ARRIVE, field: field});
         } else {
             console.log('no field for pawn back to base');
 			return false;
@@ -260,9 +281,10 @@ Player.prototype.move = function (distance, pawn) {
             if (killOtherPawn)
                 destField.kill(player);
 
-            if (nextPos > 44) {
-                nextPos = 44 - (nextPos - 44);
-            } else if (nextPos == 44) {
+            if (nextPos > player.arrivePosition) {
+                nextPos = player.arrivePosition -
+					(nextPos - player.arrivePosition);
+            } else if (nextPos == player.arrivePosition) {
                 pawn.arrive();
                 player.numArrived++;
                 if (player.numArrived == 4) {
@@ -274,9 +296,10 @@ Player.prototype.move = function (distance, pawn) {
             }
 
             pawn.position = nextPos;
-            log('player ' + player.color + ':' + pawn.pawnIndex + ' finished moving');
+            console.log(pawn.getKey() + ' finished moving');
 
-            if ((pawn.position == 44) && (player.numArrived < 4)) {
+            if ((pawn.position === player.arrivePosition) &&
+					(player.numArrived < 4)) {
                 player.currentPawn = player.getNextAvailPawnIndex();
                 log('player ' + player.color + ':' + pawn.pawnIndex +
                     ' arrived, pick up pawn ' + player.getCurrentPawn().pawnIndex);

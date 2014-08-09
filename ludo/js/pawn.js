@@ -1,9 +1,6 @@
-var Pawn = function (player, x, y, pawnIndex) {
+var Pawn = function (player, pawnIndex) {
     this.player = player;
     this.pawnIndex = pawnIndex;
-    this.x = x;
-    this.y = y;
-    this.field = null;
     this.position = -1;
     this.init();
     this.isMoving = false;
@@ -11,16 +8,23 @@ var Pawn = function (player, x, y, pawnIndex) {
     this.isArrived = false;
 };
 
-Pawn.prototype.size = 50;
+Pawn.STOP = true;
+Pawn.NOT_STOP = false;
 
 Pawn.prototype.init = function () {
     var that = this;
+	var player = this.player;
 
+	var field =
+		player.board.getBaseFreeField(this.player.color);
+	field.addPawn(this);
+
+	var pawnClass = player.board.getPawnClass(player.color, this.pawnIndex);
     this.$elem = $('<div/>')
-        .addClass('pawn pawn-' + this.player.color + ' pawn-'+this.pawnIndex)
+        .addClass(pawnClass)
         .css({
-            left: (this.x * this.size) + 25 + 'px',
-            top: (this.y * this.size) + 25 + 'px'
+            left: field.pixelX + 'px',
+            top:  field.pixelY + 'px'
         })
         .bind({
             mouseover: function () {
@@ -37,6 +41,7 @@ Pawn.prototype.init = function () {
                 }
             }
         });
+	this.$elem.css("-webkit-transform", "rotate("+field.rotForPass+"deg)");
 };
 
 Pawn.prototype.focus = function () {
@@ -61,19 +66,17 @@ Pawn.prototype.move = function (steps, callback) {
     var that = this;
 
     function doStep(steps, callback) {
-        var field;
-
         if (steps.length > 1) {
-            field = steps.shift();
-            that.step.call(that, field);
+            oneStep = steps.shift();
+            that.step.call(that, oneStep, this.NOT_STOP);
             setTimeout(function () {
                 doStep(steps, callback);
             }, 300);
         } else {
-            field = steps[0];
-            that.step.call(that, field);
+            oneStep = steps[0];
+            that.step.call(that, oneStep, this.STOP);
             if (typeof callback === 'function') {
-                callback(field);
+                callback(oneStep);
             }
         }
     }
@@ -84,7 +87,8 @@ Pawn.prototype.move = function (steps, callback) {
             this.field.removePawn(this);
         }
 
-        doStep(steps, function (field) {
+        doStep(steps, function (lastStep) {
+			var field = lastStep.field;
             if (field) {
                 field.addPawn(that);
             }
@@ -96,19 +100,47 @@ Pawn.prototype.move = function (steps, callback) {
     }
 };
 
-Pawn.prototype.step = function (field) {
+Pawn.prototype.step = function (oneStep, isStop) {
+	var rotation = 0;
+	//var currentField = this.field;
+		//game.board.getField([this.x, this.y]);
+	var sfxName = 'move';
+	var field = oneStep.field;
+	var action = oneStep.action;
+
     if (field) {
-        log("[" + this.player.color + "][" + this.pawnIndex + "]" +
+        log(this.getKey() + " " +
 			"(" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
         this.x = field.x;
         this.y = field.y;
     }
 
+	//if (currentField.type === )
+
+	if (isStop === this.STOP) {
+		if (action === ACTION.FLIGHT) {
+			/* flight to stop */
+			rotation = field.rotForFlightStop;
+		} else {
+			/* move/jump to stop */
+			rotation = field.rotForNormalStop;
+		}
+	} else {
+		if (field.type === ACTION.FLIGHT) {
+			/* will takeoff */
+			rotation = field.rotForTakeOff;
+		} else {
+			/* will move/jump out of field */
+			rotation = field.rotForPass;
+		}
+	}
+
     if (this.$elem) {
         this.$elem.css({
-            left: (this.x * this.size) + 25 + 'px',
-            top: (this.y * this.size) + 25 + 'px'
+            left: field.pixelX + 'px',
+            top:  field.pixelY + 'px'
         });
+		this.$elem.css("-webkit-transform", "rotate("+rotation+"deg)");
 
         if (this.position > -1) {
             Sfx.play('move');
@@ -118,7 +150,9 @@ Pawn.prototype.step = function (field) {
 
 Pawn.prototype.kill = function (field) {
     if (field) {
-        this.move([field]);
+		//TODO: play sfx of explosion and back home
+        this.move([{action: ACTION.KILL,
+			field: field}]);
         this.position = -1;
     }
 };

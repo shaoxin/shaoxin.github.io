@@ -1,21 +1,31 @@
-(function (global) {
-    var AI_LEVEL = {
-		    difficult: 'difficult',
-            medium:    'medium',
-            easy:      'easy',
-	    },
+var AI_LEVEL = {
+	difficult: 'difficult',
+	medium:    'medium',
+	easy:      'easy',
+};
 
-        GAME_STATUS = {
-          WAIT_FOR_CONNECTION: 'wait_for_connection',
-          WAIT_FOR_READY: 'wait_for_ready',
-          WAIT_FOR_DICE: 'wait_for_rolling_dice',
-          WAIT_FOR_PAWN: 'wait_for_moving_pawn'
-        },
-		/* CSS are hard coded following these colors*/
-        RED = 'red',
-        GREEN = 'green',
-        YELLOW = 'yellow',
-        BLUE = 'blue';
+var GAME_STATUS = {
+	WAIT_FOR_CONNECTION: 'wait_for_connection',
+	WAIT_FOR_READY:      'wait_for_ready',
+	WAIT_FOR_DICE:       'wait_for_rolling_dice',
+	WAIT_FOR_PAWN:       'wait_for_moving_pawn'
+};
+
+	/* CSS are hard coded following these colors*/
+var RED = 'red',
+    GREEN = 'green',
+    YELLOW = 'yellow',
+    BLUE = 'blue';
+
+var ACTION = {
+	NORMAL     : 0,
+	JUMP       : 1,
+	FLIGHT     : 2,
+	ARRIVE     : 3,
+	KILL       : 4,
+	RESET      : 5,
+	TURNRIGHT  : 6,
+};
 
 function Game() {
 	this.board = null;
@@ -233,6 +243,8 @@ Game.prototype = {
 	},
 }; // end of game.prototype
 
+
+(function (global) {
 	function initChromecast() {
 		if (game.isChromeCast === false) {
 			console.log('skip chromecast initialization');
@@ -490,10 +502,4 @@ Game.prototype = {
 	//TODO export as less as possible
 	global.rollDoneHandler = rollDoneHandler;
 	global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
-
-	global.GAME_STATUS = GAME_STATUS;
-	global.RED = RED;
-	global.GREEN = GREEN;
-	global.YELLOW = YELLOW;
-	global.BLUE = BLUE;
 }(this));

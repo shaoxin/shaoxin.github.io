@@ -1,15 +1,34 @@
 /**
  * Class representing a single field of a game board
- * @param {Number} x    X-position
- * @param {Number} y    Y-position
- * @param {Number} type Field type
+ * @param {Number} x               X-position
+ * @param {Number} y               Y-position
+ * @param {Number} pixelX          X coordinats(in pixel) for pawn
+ * @param {Number} pixelY          Y coordinats(in pixel) for pawn
+ * @param {String} color           color of the field
+ * @param {Number} action          Action to take after a pawn gets to the field
+ * @param {Number} rotForPass      will move/jump out of the field
+ * @param {Number} rotForTakeOff   will takeoff from the field
+ * @param {Number} rotForNormalStop   move/jump to stop
+ * @param {Number} rotForFlightStop   flight to stop
  */
-var Field = function (x, y, type) {
+var Field =
+function (x, y, color, action, pixelX, pixelY,
+		rotForPass, rotForTakeOff,
+		rotForNormalStop, rotForFlightStop) {
     this.x = x;
     this.y = y;
-    this.type = type;
     this.pawn = null;
 	this.pawns = {};
+
+	this.color = color;
+	this.action = action;
+	this.pixelX = pixelX;
+	this.pixelY = pixelY;
+
+	this.rotForPass       = rotForPass;
+	this.rotForTakeOff    = rotForTakeOff;
+	this.rotForNormalStop = rotForNormalStop;
+	this.rotForFlightStop = rotForFlightStop;
 };
 
 /**
@@ -36,6 +55,8 @@ Field.prototype.addPawn = function (pawn) {
 	}
 	this.pawns[key] = pawn;
 	pawn.field = this;
+	pawn.x = this.x;
+	pawn.y = this.y;
 };
 
 Field.prototype.removePawn = function (pawn) {

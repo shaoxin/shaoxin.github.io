@@ -4,8 +4,10 @@ var Board = function (id) {
     if (!this.$elem.length) {
         this.$elem = $('<div/>');
         this.$elem[0].id = id;
-        $('body').append(this.$elem);
+        $('#content').append(this.$elem);
     }
+
+	this.pawnPixels = 50;
     
     this.fields = [];
     this.path = [
@@ -26,6 +28,15 @@ var Board = function (id) {
 	this.initDestinations();
 };
 
+Board.prototype.updatePlayerList = function(color, name) {
+	var e = $('#li-' + color);
+	e.html('<div class="icon"></div>' + name);
+};
+
+Board.prototype.getPawnClass = function(color, pawnIndex) {
+	return 'pawn pawn-'+color + ' pawn-'+pawnIndex;
+};
+
 Board.prototype.getPath = function(color) {
 	var startPos = this.startPositions[color],
 	    p = this.path,
@@ -38,20 +49,40 @@ Board.prototype.getPath = function(color) {
 	return ret;
 };
 
+Board.prototype.getArrivePosition = function () {
+	return 44;
+};
+
+Board.prototype.getJUMPdelta = function(field) {
+	return 0;
+};
+
+Board.prototype.getFLIGHTdelta = function(field) {
+	return 0;
+};
+
 Board.prototype.initBases = function() {
 	this.bases = {};
-	this.bases[RED]    = new Base('start', RED, this);
-	this.bases[GREEN]  = new Base('start', GREEN, this);
-	this.bases[YELLOW] = new Base('start', YELLOW, this);
-	this.bases[BLUE]   = new Base('start', BLUE, this);
+	this.bases[RED]    = new Base('start', RED, this,
+			[[0, 9], [1, 9],  [0, 10], [1, 10]]);
+	this.bases[GREEN]  = new Base('start', GREEN, this,
+			[[0, 0], [1, 0],  [0, 1],  [1, 1]]);
+	this.bases[YELLOW] = new Base('start', YELLOW, this,
+			[[9, 0], [10, 0], [9, 1],  [10, 1]]);
+	this.bases[BLUE]   = new Base('start', BLUE, this,
+			[[9, 9], [10, 9], [9, 10], [10, 10]]);
 };
 
 Board.prototype.initDestinations = function() {
 	this.dests = {};
-	this.dests[RED]    = new Base('end', RED, this);
-	this.dests[GREEN]  = new Base('end', GREEN, this);
-	this.dests[YELLOW] = new Base('end', YELLOW, this);
-	this.dests[BLUE]   = new Base('end', BLUE, this);
+	this.dests[RED]    = new Base('end', RED, this,
+			[[5, 9], [5, 8], [5, 7], [5, 6], [5, 5], [5, 6], [5, 7], [5, 8], [5, 9], [5, 10]]);
+	this.dests[GREEN]  = new Base('end', GREEN, this,
+			[[1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [4, 5], [3, 5], [2, 5], [1, 5], [0, 5]]);
+	this.dests[YELLOW] = new Base('end', YELLOW, this,
+			[[5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 4], [5, 3], [5, 2], [5, 1], [5, 0]]);
+	this.dests[BLUE]   = new Base('end', BLUE, this,
+			[[9, 5], [8, 5], [7, 5], [6, 5], [5, 5], [6, 5], [7, 5], [8, 5], [9, 5], [10, 5]]);
 };
 
 Board.prototype.reset = function () {
@@ -79,7 +110,12 @@ Board.prototype.reset = function () {
         row = map[y];
         this.fields[y] = [];
         while (row[x] !== undefined) {
-            this.fields[y].push(new Field(x, y, row[x]));
+			var f = new Field(x, y, undefined,
+					ACTION.NORMAL,
+					x*this.pawnPixels+25,
+					y*this.pawnPixels+25,
+					0, 0, 0, 0);
+            this.fields[y].push(f);
             x++;
         }
         x = 0;

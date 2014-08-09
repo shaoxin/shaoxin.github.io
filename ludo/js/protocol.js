@@ -291,6 +291,13 @@ LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
 	}
 };
 
+LudoProtocol.prototype.parseProt_1_onDisconnect = function(senderID, msgObj) {
+	if (game.users[senderID]) {
+		delete game.users[senderID];
+	} else {
+	}
+};
+
 LudoProtocol.prototype.broadcastStartGame = function() {
 	i = 0;
 	while (p = game.players[i]) {

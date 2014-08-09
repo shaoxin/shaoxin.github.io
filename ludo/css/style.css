@@ -248,6 +248,7 @@ body {
     height: 60px;
     background-image: url('../images/dice.png');
     cursor: pointer;
+    transform:rotate(30deg);
 }
 
 .dice-2 {
