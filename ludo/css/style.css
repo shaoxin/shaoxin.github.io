@@ -21,8 +21,8 @@ body {
 
 #board {
     float: left;
-    width: 700px;
-    height: 700px;
+    width: 800px;
+    height: 800px;
     background: url('../images/board.jpg');
     box-shadow: 1px 1px 10px #000;
 }
