@@ -4,28 +4,10 @@
             medium:    'medium',
             easy:      'easy',
 	    },
-        game = {
-            board: null,
-            current: -1,
-            players: [],
-            playersColorIndex: {},
-            playerList: null,
-            pickupIndex: 0,
-            proto: null,
-
-            level: AI_LEVEL.medium,
-            user_computer: null,
-            user_nobody: null,
-            user_unavailable: null,
-            user_host: null,
-            user_test: null,
-            num_user: 0,
-            users: {},
-
-        },
 
         GAME_STATUS = {
           WAIT_FOR_CONNECTION: 'wait_for_connection',
+          WAIT_FOR_STARTOFGAME: 'wait_for_start',
           WAIT_FOR_DICE: 'wait_for_rolling_dice',
           WAIT_FOR_PAWN: 'wait_for_moving_pawn'
         },
@@ -35,39 +17,105 @@
         YELLOW = 'yellow',
         BLUE = 'blue';
 
-    function playAward() {
-        game.board.dice.focus();
-        game.board.dice.showHint();
-        game.stat = GAME_STATUS.WAIT_FOR_DICE;
-    }
+function Game() {
+	this.board = null;
+	this.current = -1;
+	this.players = [];
+	this.playersColorIndex = {};
+	this.playerList = null;
 
-	function getCurrentPlayer() {
-		return game.players[game.current];
-	}
-	function getPlayerFromIndex(index) {
-		return game.players[index] || null;
-	}
-	function getPlayerFromColor(color) {
-		return game.playersColorIndex[color] || null;
+	this.proto = new LudoProtocol();
+
+	this.level = AI_LEVEL.medium;
+
+	this.numDone = 0;
+	this.num_user = 0;
+	this.users = {};
+
+	this.user_computer =
+		new User(User.TYPE.COMPUTER, User.READY);
+	this.user_unavailable =
+		new User(User.TYPE.UNAVAILABLE, User.UNREADY);
+	this.user_nobody =
+		new User(User.TYPE.NOBODY, User.UNREADY);
+
+	this.user_host = null;
+
+	ua = navigator.userAgent.toLowerCase();
+	console.log(ua);
+	if (ua.indexOf('windows') >= 0) {
+		this.isChromeCast = false;
+	} else {
+		this.isChromeCast = true;
 	}
 
-    function nextPlayer() {
-        var next = game.current,
+	// UI element
+	this.uiWelcome = $('#welcome');
+	this.uiContent = $('#content');
+
+	// for test only
+	this.user_test = null;
+	this.pickupIndex = 0;
+}
+
+Game.prototype = {
+	showUI_waitForConnection: function () {
+		this.uiWelcome.show();
+		this.uiContent.hide();
+	},
+
+	showUI_waitForStartOfGame: function() {
+		this.uiWelcome.hide();
+    /*<div id="content">
+        <div id="board"></div>
+        <div id="sidebar">
+            <div class="arrow"></div>
+            <ul id="players-list"></ul>
+        </div>
+    </div>*/
+		this.uiContent.show();
+	},
+
+	waitForStartOfGame: function() {
+		if (this.stat === GAME_STATUS.WAIT_FOR_STARTOFGAME)
+			return;
+		this.stat = GAME_STATUS.WAIT_FOR_STARTOFGAME;
+		this.showUI_waitForStartOfGame();
+	},
+
+	getCurrentPlayer : function () {
+		return this.players[this.current];
+	},
+	getPlayerFromIndex : function (index) {
+		return this.players[index] || null;
+	},
+	getPlayerFromColor : function (color) {
+		return this.playersColorIndex[color] || null;
+	},
+
+    playAward : function () {
+        this.board.dice.focus();
+        this.board.dice.showHint();
+        this.stat = GAME_STATUS.WAIT_FOR_DICE;
+    },
+
+    nextPlayer : function () {
+        var next = this.current,
             arrow = $('.arrow'),
             i = 0;
 
-        if (game.numDone == 4) {
-            getCurrentPlayer.blur();
+        if (this.numDone == 4) {
+            this.getCurrentPlayer().blur();
             console.log('all players are done, need to restart the game');
             return;
         }
 
-        while (game.players[i]) {
-            game.players[i].blur();
+        while (this.players[i]) {
+            this.players[i].blur();
             i++;
         }
 
-        arrow.removeClass('arrow-' + game.current);
+        arrow.removeClass('arrow-' + this.current);
         i = 0;
         while (i < 4) {
             if (next == 3) {
@@ -75,114 +123,78 @@
             } else {
                 next++;
             }
-			if (game.players[next].getUser().type == User.TYPE.UNAVAILABLE) {
-				console.log("skip unavailable player-" + game.players[next].color);
+			if (this.players[next].getUser().type == User.TYPE.UNAVAILABLE) {
+				console.log("skip unavailable player-" +
+						this.players[next].color);
 				i++;
 				continue;
 			}
-            if (game.players[next].numArrived == 4) {
-				console.log("skip finished player-" + game.players[next].color);
+            if (this.players[next].numArrived == 4) {
+				console.log("skip finished player-" + this.players[next].color);
                 i++;
                 continue;
             }
             break;
         }
-        if (game.current >= 0)
-            console.log("player switch from " + getCurrentPlayer().color +
-                " to " + getPlayerFromIndex(next).color);
+        if (this.current >= 0)
+            console.log("player switch from " +
+				this.getCurrentPlayer().color + " " +
+				"to " + this.getPlayerFromIndex(next).color);
         else
-            console.log("player " + getPlayerFromIndex(next).color + " starts");
-        game.current = next > 3 ? 0 : next;
-        arrow.addClass('arrow-' + game.current);
+            console.log("player " + this.getPlayerFromIndex(next).color + " starts");
+        this.current = next > 3 ? 0 : next;
+        arrow.addClass('arrow-' + this.current);
         //game.players[game.current].focus();
-        game.board.dice.focus();
-        game.board.dice.showHint();
-        game.board.dice.setPlayer(getCurrentPlayer());
-        game.stat = GAME_STATUS.WAIT_FOR_DICE;
-    }
+        this.board.dice.focus();
+        this.board.dice.showHint();
+        this.board.dice.setPlayer(this.getCurrentPlayer());
+        this.stat = GAME_STATUS.WAIT_FOR_DICE;
+    },
 
-    function addPlayer(name, color, user) {
-    	var player = new Player(name, color, game.board);
+	addPlayer: function (name, color, user) {
+    	var player = new Player(name, color, this.board);
 
-        game.players.push(player);
-		game.playersColorIndex[color] = player;
+        this.players.push(player);
+		this.playersColorIndex[color] = player;
 
         // todo convert to component with focus indicator etc.
 		var inner = '<div class="icon"></div>';
-        game.playerList.append(
+        this.playerList.append(
             '<li id="li-' + color + '" class="player player-' + color + '">' + inner + '</li>'
         );
 
         player.setUser(user);
+    },
 
-    }
-    function addUser(user) {
-		if (game.users[user.senderID]) {
+    addUser: function (user) {
+		if (this.users[user.senderID]) {
 			console.error("error: user " + user.senderID + " already added");
 			return {val: false, detail: "already added"};
 		}
-		if (game.num_user == 4) {
+		if (this.num_user == 4) {
 			console.error("error: already 4 users");
 			return {val: false, detail: "exceed maximum connections"};
 		}
-		game.users[user.senderID] = user;
-		game.num_user++;
-		if (game.num_user == 1) {
+		this.users[user.senderID] = user;
+		this.num_user++;
+		if (this.num_user == 1) {
 			user.ishost = true;
-			game.user_host = user;
+			this.user_host = user;
 			console.log("user " + user.name + " is chosen to be the host");
 		}
 		return {val: true, detail: ""};
-	};
-	function getUserFromSenderID(senderID) {
-		return game.users[senderID] || null;
-	};
+	},
 
-    function onload() {
-        //todo remove
-        global.game = game;
-        global.nextPlayer = nextPlayer;
-        global.playAward = playAward;
-        global.rollDoneHandler = rollDoneHandler;
-		global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
+	getUserFromSenderID : function (senderID) {
+		return this.users[senderID] || null;
+	}
+}; // end of game.prototype
 
-		global.GAME_STATUS = GAME_STATUS;
-		global.RED = RED;
-		global.GREEN = GREEN;
-		global.YELLOW = YELLOW;
-		global.BLUE = BLUE;
-
-		game.getCurrentPlayer = getCurrentPlayer;
-		game.getPlayerFromColor = getPlayerFromColor;
-		game.getPlayerFromIndex = getPlayerFromIndex;
-		game.addUser = addUser;
-		game.getUserFromSenderID = getUserFromSenderID;
-
-		game.numDone = 0;
-        game.playerList = $('#players-list');
-
-        console.log(navigator.userAgent.toLowerCase());
-        console.log('init game');
-
-        game.proto = new LudoProtocol();
-        game.board = new Board('board');
-        game.board.dice = new Dice('content');
-
-        game.users = {};
-        game.user_unavailable =
-			new User(User.TYPE.UNAVAILABLE, User.UNREADY);
-        game.user_nobody =
-			new User(User.TYPE.NOBODY, User.UNREADY);
-        game.user_computer =
-			new User(User.TYPE.COMPUTER, User.READY);
-
-        addPlayer('Player 1', RED,    game.user_nobody);
-        addPlayer('Player 2', GREEN,  game.user_nobody);
-        addPlayer('Player 3', YELLOW, game.user_nobody);
-        addPlayer('Player 4', BLUE,   game.user_nobody);
-
-        game.status = GAME_STATUS.WAIT_FOR_CONNECTION;
-        nextPlayer();
+	function initChromecast() {
+		if (game.isChromeCast === false) {
+			console.log('skip chromecast initialization');
+			return;
+		}
 
         console.log('init chrome cast handler');
         cast.receiver.logger.setLevelValue(0);
@@ -220,7 +232,6 @@
           game.castReceiverManager.getCastMessageBus(
               'urn:x-cast:com.google.cast.sample.helloworld');
 
-
         // initialize the CastReceiverManager with an application status message
         game.castReceiverManager.start({statusText: "Application is starting"});
         console.log('Receiver Manager started');
@@ -239,26 +250,49 @@
           console.log("onMessage msg.COMMAND=" + msg.COMMAND);
           handlemsg(event.senderId, event.data);
         }
+	};
 
+    function onload() {
+		var game = new Game();
+
+		global.game = game;
+        game.playerList = $('#players-list');
+
+        console.log('init game');
+
+        game.board = new Board('board');
+        game.board.dice = new Dice('content');
+
+        game.addPlayer('Player 1', RED,    game.user_nobody);
+        game.addPlayer('Player 2', GREEN,  game.user_nobody);
+        game.addPlayer('Player 3', YELLOW, game.user_nobody);
+        game.addPlayer('Player 4', BLUE,   game.user_nobody);
+
+        game.stat = GAME_STATUS.WAIT_FOR_CONNECTION;
+//        game.nextPlayer();
+
+		initChromecast();
+
+		game.showUI_waitForConnection();
     }
 
     function rollDoneHandler(newValue) {
-        var player = getCurrentPlayer();
+        var player = game.getCurrentPlayer();
 
         console.log('rollDoneHandler inbusy: currentPlayer=' + player.color +
 				' dice=' + newValue);
 
         if ((game.board.getBaseFreeField(player.color) === null) &&
                 (newValue !== 6)) {
-            nextPlayer();
+            game.nextPlayer();
         } else {
 			// TODO: select a pawn before focus the player
-            getCurrentPlayer().focus();
+            game.getCurrentPlayer().focus();
             game.stat = GAME_STATUS.WAIT_FOR_PAWN;
         }
     }
 	function rollDoneHandler_outofbusy(diceValue) {
-        var player = getCurrentPlayer();
+        var player = game.getCurrentPlayer();
 		var user = player.getUser();
 
         console.log('rollDoneHandler postbusy: currentPlayer=' + player.color +
@@ -276,7 +310,7 @@
 	};
 
     function handlemsg_prehistoric(channel, msg) {
-        var player = getCurrentPlayer();
+        var player = game.getCurrentPlayer();
         var pawn = player.getCurrentPawn();
 
         console.log("'" + msg +
@@ -329,7 +363,7 @@
         if (typeof msg === "string") {
             var msgObj = null;
             try {
-                var msgObj = $.parseJSON(msg);
+                var msgObj = JSON.parse(msg);
                 game.proto.parseMsg(channel, msgObj);
             } catch(err) {
                 console.log('not a json string, try prehistoric way');
@@ -377,10 +411,38 @@
 			game.playersColorIndex[GREEN].setUser(game.user_computer);
 			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
+		} else if (event.keyCode === 83 /* 's'*/) {
+			if (game.stat !== GAME_STATUS.WAIT_FOR_CONNECTION)
+				return;
+			game.testChannel = "testChannel";
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
+		} else if (event.keyCode === 82 /* 'r'*/) {
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"green", "user_type":"human"}');
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"yellow", "user_type":"human"}');
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"blue", "user_type":"human"}');
+
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
 		}
     }
 
     global.addEventListener('load', function () {
         onload();
     });
+
+	//TODO export as less as possible
+	global.rollDoneHandler = rollDoneHandler;
+	global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
+
+	global.GAME_STATUS = GAME_STATUS;
+	global.RED = RED;
+	global.GREEN = GREEN;
+	global.YELLOW = YELLOW;
+	global.BLUE = BLUE;
 }(this));

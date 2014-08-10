@@ -134,6 +134,7 @@ LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
 						msgObj.prot_version +
 						') is set the same as host');
 			this.prot_version = msgObj.prot_version;
+			game.waitForStartOfGame();
 		}
 
 		var reply = new Object();
@@ -298,6 +299,7 @@ LudoProtocol.prototype.broadcastStartGame = function() {
 	broadcastMsg.command =
 		LudoProtocol.COMMAND.startgame + '_notify';
 	this.broadcast(broadcastMsg);
+	game.nextPlayer();
 };
 
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
@@ -361,11 +363,13 @@ LudoProtocol.prototype.parseMsg = function (senderID, msgObj) {
 		msgObj.command = msgObj.command + "_reply";
 		msgObj.ret = false;
 		msgObj.error = err;
-		sendMsg(senderID, msgObj, true);
+		this.sendMsg(senderID, msgObj, true);
     }
 };
 
 LudoProtocol.prototype.sendMsg = function (senderID, msgObj, keepHeader) {
+	if (game.isChromeCast === false)
+		return;
 	if (keepHeader !== true) {
 		msgObj.MAGIC = LudoProtocol.MAGIC;
 		msgObj.prot_version = this.prot_version;
@@ -374,6 +378,8 @@ LudoProtocol.prototype.sendMsg = function (senderID, msgObj, keepHeader) {
 };
 
 LudoProtocol.prototype.broadcast = function (msgObj) {
+	if (game.isChromeCast === false)
+		return;
 	msgObj.MAGIC = LudoProtocol.MAGIC;
 	msgObj.prot_version = this.prot_version;
 	game.messageBus.broadcast(JSON.stringify(msgObj));

@@ -258,11 +258,11 @@ Player.prototype.move = function (distance, pawn) {
             }
 
             if (switchPlayer) {
-                nextPlayer();
+                game.nextPlayer();
             } else {
                 log('player ' + player.color + ':' + pawn.pawnIndex +
                     ' is onboard, roll dice again');
-                playAward();
+                game.playAward();
             }
             player.isMoving = false;
 
