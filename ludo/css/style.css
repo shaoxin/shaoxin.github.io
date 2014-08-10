@@ -14,15 +14,15 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 1000px;
-    height: 800px;
-    margin: -400px 0 0 -500px;
+    width: 800px;
+    height: 600px;
+    margin: -300px 0 0 -400px;
 }
 
 #board {
     float: left;
-    width: 800px;
-    height: 800px;
+    width: 600px;
+    height: 600px;
     background: url('../images/board.jpg');
     box-shadow: 1px 1px 10px #000;
 }
