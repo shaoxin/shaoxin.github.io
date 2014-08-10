@@ -35,12 +35,14 @@ Field.prototype.addPawn = function (pawn) {
 		return;
 	}
 	this.pawns[key] = pawn;
+	pawn.field = this;
 };
 
 Field.prototype.removePawn = function (pawn) {
 	var key = pawn.getKey();
 	if (this.pawns[key]) {
 		delete this.pawns[key];
+		pawn.field = null;
 	} else {
 		console.log("pawn " + key + " is not inside "
 				+ field.x + "," +field.y);
@@ -48,7 +50,7 @@ Field.prototype.removePawn = function (pawn) {
 };
 
 Field.prototype.getPawns = function (pawn) {
-	var pawns = [];
+	var pawns = [], p;
 	for (p in this.pawns)
 		pawns.push(this.pawns[p]);
 	return pawns;
@@ -58,9 +60,13 @@ Field.prototype.getPawns = function (pawn) {
  * kill pawns not belonging to newPlayer
  */
 Field.prototype.kill = function (newPlayer) {
+	var key, p, field;
 	for (key in this.pawns) {
 		p = this.pawns[key];
-		if (p.player != newPlayer)
-			p.kill();
+		if (p.player != newPlayer) {
+			field =
+				game.board.getBaseFreeField(p.player.color);
+			p.kill(field);
+		}
 	}
 };

@@ -15,22 +15,43 @@ var Board = function (id) {
         [9, 4], [10, 4], [10, 5], [10, 6], [9, 6], [8, 6], [7, 6], [6, 6], [6, 7],
         [6, 8], [6, 9], [6, 10], [5, 10]
     ];
-	this.startLocation = {
+	this.startPositions = {
 		red: 0,
 		green: 10,
 		yellow: 20,
 		blue: 30,
 	};
     this.reset();
+	this.initBases();
+	this.initDestinations();
 };
 
 Board.prototype.getPath = function(color) {
-	var start = this.startLocation[color],
+	var startPos = this.startPositions[color],
 	    p = this.path,
 		size = p.length;
 
-    ret = start > 0 ? p.slice(start, size).concat(p.slice(0, start)) : [].concat(p);
+    ret = startPos > 0 ?
+		p.slice(startPos, size).concat(p.slice(0, startPos)) :
+		[].concat(p);
+    ret = ret.concat(this.dests[color].getPath());
 	return ret;
+};
+
+Board.prototype.initBases = function() {
+	this.bases = {};
+	this.bases[RED]    = new Base('start', RED, this);
+	this.bases[GREEN]  = new Base('start', GREEN, this);
+	this.bases[YELLOW] = new Base('start', YELLOW, this);
+	this.bases[BLUE]   = new Base('start', BLUE, this);
+};
+
+Board.prototype.initDestinations = function() {
+	this.dests = {};
+	this.dests[RED]    = new Base('end', RED, this);
+	this.dests[GREEN]  = new Base('end', GREEN, this);
+	this.dests[YELLOW] = new Base('end', YELLOW, this);
+	this.dests[BLUE]   = new Base('end', BLUE, this);
 };
 
 Board.prototype.reset = function () {
@@ -75,4 +96,9 @@ Board.prototype.getField = function (coords) {
         y = coords[1];
         
     return this.fields[y] ? this.fields[y][x] : null;
+};
+
+Board.prototype.getBaseFreeField = function (color) {
+	var base = this.bases[color];
+	return base.getFreeField();
 };

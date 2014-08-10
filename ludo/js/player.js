@@ -1,12 +1,9 @@
 var Player = function (name, color, board) {
     this.name = name;
-    this.pawnIndex = 1;
     this.color = color;
     this.board = board;
-    this.start = new Base('start', this.color, this.board);
-    this.end = new Base('end', this.color, this.board);
-    this.setPath();
-    this.setPawns();
+    this.initPath();
+    this.initPawns();
     this.isFocused = false;
     this.isFinished = false;
     this.numArrived = 0;
@@ -33,12 +30,11 @@ Player.prototype.getUser = function() {
 	return this.user || null;
 };
 
-Player.prototype.setPath = function () {
+Player.prototype.initPath = function () {
 	this.path = this.board.getPath(this.color);
-    this.path = this.path.concat(this.end.getPath());
 };
 
-Player.prototype.setPawns = function () {
+Player.prototype.initPawns = function () {
     var i = 0,
         field,
         pawn;
@@ -46,8 +42,8 @@ Player.prototype.setPawns = function () {
     this.pawns = [];
 
     for (i = 0; i < 4; i++) {
-        pawn = new Pawn(this, 0, 0);
-        field = this.start.getFreeField();
+        pawn = new Pawn(this, 0, 0, i);
+        field = this.board.getBaseFreeField(this.color);
         if (field) {
             field.addPawn(pawn);
             pawn.move([field]);
@@ -222,11 +218,12 @@ Player.prototype.move = function (distance, pawn) {
             }
         }
     } else if (nextPos == 44) {
-        var field = this.start.getFreeField();
+        var field = this.board.getBaseFreeField(this.color);
         if (field) {
-            fields.push(this.start.getFreeField());
+            fields.push(field);
         } else {
-            alert('there should be an empty field for pawn home');
+            console.log('no field for pawn back to base');
+			return false;
         }
     } else {
         this.isMoving = false;

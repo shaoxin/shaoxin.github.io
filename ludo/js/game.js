@@ -145,7 +145,12 @@
         global.playAward = playAward;
         global.rollDoneHandler = rollDoneHandler;
 		global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
+
 		global.GAME_STATUS = GAME_STATUS;
+		global.RED = RED;
+		global.GREEN = GREEN;
+		global.YELLOW = YELLOW;
+		global.BLUE = BLUE;
 
 		game.getCurrentPlayer = getCurrentPlayer;
 		game.getPlayerFromColor = getPlayerFromColor;
@@ -243,7 +248,7 @@
         console.log('rollDoneHandler inbusy: currentPlayer=' + player.color +
 				' dice=' + newValue);
 
-        if ((player.start.getFreeField() === null) &&
+        if ((game.board.getBaseFreeField(player.color) === null) &&
                 (newValue !== 6)) {
             nextPlayer();
         } else {

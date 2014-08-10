@@ -1,7 +1,6 @@
-var Pawn = function (player, x, y) {
+var Pawn = function (player, x, y, pawnIndex) {
     this.player = player;
-    this.pawnIndex = player.pawnIndex;
-    player.pawnIndex++;
+    this.pawnIndex = pawnIndex;
     this.x = x;
     this.y = y;
     this.field = null;
@@ -18,7 +17,7 @@ Pawn.prototype.init = function () {
     var that = this;
 
     this.$elem = $('<div/>')
-        .addClass('pawn pawn-' + this.player.color)
+        .addClass('pawn pawn-' + this.player.color + ' pawn-'+this.pawnIndex)
         .css({
             left: (this.x * this.size) + 25 + 'px',
             top: (this.y * this.size) + 25 + 'px'
@@ -87,8 +86,7 @@ Pawn.prototype.move = function (steps, callback) {
 
         doStep(steps, function (field) {
             if (field) {
-                that.field = field;
-                that.field.addPawn(that);
+                field.addPawn(that);
             }
             that.isMoving = false;
             if (typeof callback === 'function') {
@@ -118,11 +116,8 @@ Pawn.prototype.step = function (field) {
     }
 };
 
-Pawn.prototype.kill = function () {
-    var field = this.player.start.getFreeField();
-    
+Pawn.prototype.kill = function (field) {
     if (field) {
-        this.field = null;
         this.move([field]);
         this.position = -1;
     }
