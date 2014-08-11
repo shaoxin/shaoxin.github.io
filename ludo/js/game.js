@@ -7,7 +7,7 @@
 
         GAME_STATUS = {
           WAIT_FOR_CONNECTION: 'wait_for_connection',
-          WAIT_FOR_STARTOFGAME: 'wait_for_start',
+          WAIT_FOR_READY: 'wait_for_ready',
           WAIT_FOR_DICE: 'wait_for_rolling_dice',
           WAIT_FOR_PAWN: 'wait_for_moving_pawn'
         },
@@ -77,9 +77,9 @@ Game.prototype = {
 	},
 
 	waitForStartOfGame: function() {
-		if (this.stat === GAME_STATUS.WAIT_FOR_STARTOFGAME)
+		if (this.stat === GAME_STATUS.WAIT_FOR_READY)
 			return;
-		this.stat = GAME_STATUS.WAIT_FOR_STARTOFGAME;
+		this.stat = GAME_STATUS.WAIT_FOR_READY;
 		this.showUI_waitForStartOfGame();
 	},
 
@@ -123,9 +123,11 @@ Game.prototype = {
             } else {
                 next++;
             }
-			if (this.players[next].getUser().type == User.TYPE.UNAVAILABLE) {
-				console.log("skip unavailable player-" +
-						this.players[next].color);
+			var user = this.players[next].getUser();
+			if (user.type === User.TYPE.UNAVAILABLE ||
+					user.type === User.TYPE.NOBODY) {
+				console.log("skip player-" + this.players[next].color +
+						' user_type:' + user_type);
 				i++;
 				continue;
 			}
@@ -187,7 +189,27 @@ Game.prototype = {
 
 	getUserFromSenderID : function (senderID) {
 		return this.users[senderID] || null;
-	}
+	},
+
+	onDisconnect: function(senderId) {
+		var user = this.users[senderId];
+		if (user === undefined) {
+			console.log('user senderId:' + senderId + ' is not connected');
+			return;
+		}
+		console.log('senderId:' + senderId + 'name:' + user.name + ' disconnected');
+		var c, p;
+		for (c in user.players) {
+			p = user.players[c];
+			p.setUser(this.user_nobody);
+		}
+		if (this.user_host === user) {
+			console.log('host disconnected');
+			this.user_host = null;
+		}
+		delete this.users[senderId];
+		this.num_user--;
+	},
 }; // end of game.prototype
 
 	function initChromecast() {
@@ -215,7 +237,9 @@ Game.prototype = {
 
         // handler for 'senderdisconnected' event
         game.castReceiverManager.onSenderDisconnected = function(event) {
-          console.log('Received Sender Disconnected event: ' + event.data);
+          console.log('Received Sender Disconnected event: ' + event.data +
+				  ' from ' + event.senderId);
+		  game.onDisconnect(event.senderId);
           if (game.castReceiverManager.getSenders().length == 0) {
             window.close();
           }
@@ -378,14 +402,14 @@ Game.prototype = {
 
     document.onkeydown = function(event) {
         console.log('key ' + event.keyCode + ' pressed!');
-        if (event.keyCode === 13) {
+        if (event.keyCode === 13 /*'enter'*/) {
             handlemsg(game.testChannel, 'click');
 			//handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
-        } else if (event.keyCode === 37) {
+        } else if (event.keyCode === 37 /*left*/) {
             handlemsg(game.testChannel, 'prev');
-        } else if (event.keyCode === 39) {
+        } else if (event.keyCode === 39 /*right*/) {
             handlemsg(game.testChannel, 'next');
-        } else if (event.keyCode === 67 /*'c'*/) {
+        } else if (event.keyCode === 65 /*'a'*/) {
 			if (typeof computer_kicked_off !== 'undefined') {
 				console.log("computer battle already started");
 				return;
@@ -411,13 +435,15 @@ Game.prototype = {
 			game.playersColorIndex[GREEN].setUser(game.user_computer);
 			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
-		} else if (event.keyCode === 83 /* 's'*/) {
-			if (game.stat !== GAME_STATUS.WAIT_FOR_CONNECTION)
+		} else if (event.keyCode === 67 /* 'c' connect*/) {
+			if (game.num_user !== 0) {
+				console.log('host already connected, nothing to do');
 				return;
+			}
 			game.testChannel = "testChannel";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
-		} else if (event.keyCode === 82 /* 'r'*/) {
+		} else if (event.keyCode === 80 /* 'p'*/) {
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
 			handlemsg(game.testChannel,
@@ -426,9 +452,13 @@ Game.prototype = {
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"yellow", "user_type":"human"}');
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"blue", "user_type":"human"}');
-
+		} else if (event.keyCode === 82 /* 'r' getready*/) {
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
+		} else if (event.keyCode === 68 /* 'd' disconnect*/) {
+			game.testChannel = "testChannel";
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"disconnect"}');
 		}
     }
 

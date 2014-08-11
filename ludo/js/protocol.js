@@ -249,6 +249,19 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 	}
 };
 
+LudoProtocol.prototype.parseProt_1_onDisconnect = function(senderID, msgObj) {
+	try {
+		game.onDisconnect(senderID);
+	} catch (err) {
+		console.log("disconnect error: " + err);
+		reply = {};
+		reply.ret = false;
+		reply.error = err;
+		this.sendMsg(senderID, reply);
+		return;
+	}
+};
+
 LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
 	var reply = {};
 	reply.command = LudoProtocol.COMMAND.getready + '_reply';
@@ -324,6 +337,7 @@ LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 				break;
 
 			case LudoProtocol.COMMAND.disconnect:
+				this.parseProt_1_onDisconnect(senderID, msgObj);
 				break;
 
 			default:
