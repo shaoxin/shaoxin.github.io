@@ -313,6 +313,9 @@ LudoProtocol.prototype.broadcastStartGame = function() {
 		LudoProtocol.COMMAND.startgame + '_notify';
 	this.broadcast(broadcastMsg);
 	game.nextPlayer();
+	if (game.getCurrentPlayer().getUser().type === User.TYPE.COMPUTER)
+		game.board.dice.roll(game.rollDoneHandler,
+				game.rollDoneHandler_outofbusy);
 };
 
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
