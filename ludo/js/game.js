@@ -198,10 +198,19 @@ Game.prototype = {
 			return;
 		}
 		console.log('senderId:' + senderId + 'name:' + user.name + ' disconnected');
-		var c, p;
+		var c, p, notify={}, player_status={};
+		notify.command = LudoProtocol.COMMAND.pickup + '_notify';
+		notify.player_status = player_status;
 		for (c in user.players) {
 			p = user.players[c];
 			p.setUser(this.user_nobody);
+
+			player_status.color     = p.color;
+			player_status.user_type = p.getUser().type;
+			player_status.isready   = p.getUser().isready;
+			player_status.username  = p.getUser().name;
+
+			this.proto.broadcast(notify);
 		}
 		if (this.user_host === user) {
 			console.log('host disconnected');
