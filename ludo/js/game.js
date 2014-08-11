@@ -106,6 +106,7 @@ Game.prototype = {
 
         if (this.numDone == 4) {
             this.getCurrentPlayer().blur();
+			arrow.hide();
             console.log('all players are done, need to restart the game');
             return;
         }
@@ -146,6 +147,7 @@ Game.prototype = {
             console.log("player " + this.getPlayerFromIndex(next).color + " starts");
         this.current = next > 3 ? 0 : next;
         arrow.addClass('arrow-' + this.current);
+		arrow.show();
         //game.players[game.current].focus();
         this.board.dice.focus();
         this.board.dice.showHint();
@@ -198,12 +200,15 @@ Game.prototype = {
 			return;
 		}
 		console.log('senderId:' + senderId + 'name:' + user.name + ' disconnected');
-		var c, p, notify={}, player_status={};
+		var c, p, notify={}, player_status={}, isChangePlayer = false;
 		notify.command = LudoProtocol.COMMAND.pickup + '_notify';
 		notify.player_status = player_status;
 		for (c in user.players) {
 			p = user.players[c];
 			p.setUser(this.user_nobody);
+			p.resetPawns();
+			if (p === this.getCurrentPlayer())
+				isChangePlayer = true;
 
 			player_status.color     = p.color;
 			player_status.user_type = p.getUser().type;
@@ -218,6 +223,13 @@ Game.prototype = {
 		}
 		delete this.users[senderId];
 		this.num_user--;
+		if (this.num_user === 0) {
+			$('.arrow').hide();
+			this.board.dice.blur();
+			this.current = -1;
+		} else if (isChangePlayer) {
+			this.nextPlayer();
+		}
 	},
 }; // end of game.prototype
 

@@ -103,6 +103,7 @@ Dice.prototype.init = function () {
     var that = this,
         hint = $('<div />').addClass('dice-hint');
 
+	hint.addClass('hide');
     this.$hint = hint;
     this.$diceelem = $('<div />')
                 .addClass('dice')

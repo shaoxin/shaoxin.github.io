@@ -100,6 +100,7 @@ body {
     height: 40px;
     background: url('../images/sprites.png') -240px 0 no-repeat;
     -webkit-transition: top .1s linear;
+	display: none;
 }
 
 .arrow-0 {

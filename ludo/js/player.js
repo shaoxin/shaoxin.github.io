@@ -54,6 +54,28 @@ Player.prototype.initPawns = function () {
     this.currentPawn = 0;
 };
 
+Player.prototype.resetPawns = function () {
+    var i = 0,
+        field,
+        pawn;
+
+	while (this.isMoving)
+		console.log('wait for player-' + this.color + ' to stop');
+
+    for (i = 0; i < 4; i++) {
+        pawn = this.pawns[i];
+		if (pawn.position === -1)
+			continue;
+        field = this.board.getBaseFreeField(this.color);
+        if (field) {
+            pawn.move([field]);
+        } else {
+			console.log("no base field for " + pawn.getKey());
+		}
+    }
+    this.currentPawn = 0;
+};
+
 Player.prototype.getCurrentPawn = function () {
     return this.pawns[this.currentPawn] || null;
 }
