@@ -267,6 +267,9 @@ Player.prototype.move = function (distance, pawn) {
                 player.numArrived++;
                 if (player.numArrived == 4) {
                     game.numDone++;
+					console.log("player-" + player.color +
+						" finished, force switchPlayer = true");
+					switchPlayer = true;
                 }
             }
 
