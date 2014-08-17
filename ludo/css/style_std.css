@@ -1,0 +1,314 @@
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000 url('../images/bg_350.jpg');
+    min-height: 640px;
+    height: 100%;
+}
+
+#welcome {
+	text-align: center;
+    color: #fff;
+    position: absolute;
+    top: 30%;
+    left: 40%;
+	display: none;
+}
+
+#content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 840px;
+    height: 640px;
+    margin: -320px 0 0 -400px;
+	display: none;
+}
+
+#board {
+    float: left;
+    width: 640px;
+    height: 640px;
+    background: url('../images/standard/board.jpg');
+    box-shadow: 1px 1px 10px #000;
+}
+
+#sidebar {
+    position: relative;
+    float: left;
+    width: 200px;
+}
+
+#players-list {
+    width: 170px;
+    position: relative;
+    padding: 40px 0 0 30px;
+    margin: 0;
+    background: url('../images/sprites.png') 30px -480px no-repeat;
+    overflow: hidden;
+    list-style-type: none;
+}
+
+.icon {
+    float: left;
+    width: 40px;
+    height: 40px;
+    background: url('../images/sprites.png') no-repeat;
+}
+
+.player {
+    float: left;
+    clear: left;
+    width: 170px;
+    height: 40px;
+    overflow: hidden;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    //text-transform: uppercase;
+    text-shadow: 1px 1px 2px #000;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 40px;
+}
+
+.player-red .icon {
+    background-position: -320px 0;
+}
+
+.player-green .icon {
+    background-position: -320px -40px;
+}
+
+.player-yellow .icon {
+    background-position: -320px -80px;
+}
+
+.player-blue .icon {
+    background-position: -320px -120px;
+}
+
+.arrow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    background: url('../images/sprites.png') -240px 0 no-repeat;
+    -webkit-transition: top .1s linear;
+	display: none;
+}
+
+.arrow-0 {
+    top: 40px;
+}
+
+.arrow-1 {
+    top: 80px;
+}
+
+.arrow-2 {
+    top: 120px;
+}
+
+.arrow-3 {
+    top: 160px;
+}
+
+.shadow {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: url('../images/shadow.png');
+    background-size: 100% 100%;
+}
+
+.pawn {
+	border: 0 solid;
+	border-radius:18px;
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: url('../images/standard/pawns.png') no-repeat;
+    -webkit-transition: top .1s linear, left .1s linear;
+}
+
+.pawn.focused {
+    -webkit-animation: .5s steps(1) infinite alternate;
+    cursor: pointer;
+}
+
+.pawn.arrive {
+    background-position: -36px 0;
+}
+
+.pawn-red.focused {
+    box-shadow: 0 0 8px 9px #eeeeee;
+	//-webkit-animation-name: focusred;
+}
+
+.pawn-green {
+    background-position: 0 -108px;
+}
+
+.pawn-green.focused {
+    box-shadow: 0 0 8px 9px #eeeeee;
+    //-webkit-animation-name: focusgreen;
+}
+
+.pawn-yellow {
+    background-position: 0 -36px;
+}
+
+.pawn-yellow.focused {
+    box-shadow: 0 0 8px 9px #eeeeee;
+    //-webkit-animation-name: focusyellow;
+}
+
+.pawn-blue {
+    background-position: 0 -72px;
+}
+
+.pawn-blue.focused {
+    box-shadow: 0 0 8px 9px #eeeeee;
+    //-webkit-animation-name: focusblue;
+}
+
+//228  53 22
+//27  202 233 1bcae9
+@-webkit-keyframes focusred {
+    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
+    25% { box-shadow: 0 0 8px 3px #eeeeee; }
+    50% { box-shadow: 0 0 8px 6px #eeeeee; }
+    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+}
+
+//21  141 22
+//234 114 233 ea72e9
+@-webkit-keyframes focusgreen {
+    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
+    25% { box-shadow: 0 0 8px 3px #eeeeee; }
+    50% { box-shadow: 0 0 8px 6px #eeeeee; }
+    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+}
+
+//254 209 6
+//1   46  249 012ef9
+@-webkit-keyframes focusyellow {
+    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
+    25% { box-shadow: 0 0 8px 3px #eeeeee; }
+    50% { box-shadow: 0 0 8px 6px #eeeeee; }
+    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+}
+
+//13  117 196
+//242 138 59  f28a3b
+@-webkit-keyframes focusblue {
+    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
+    25% { box-shadow: 0 0 8px 3px #eeeeee; }
+    50% { box-shadow: 0 0 8px 6px #eeeeee; }
+    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+}
+
+
+.dice-wrap {
+    position: absolute;
+    top: 485px;
+    left: 675px;
+    width: 90px;
+    height: 90px;
+    background-image: url('../images/dice.png');
+    background-position: 0 -75px;
+    -webkit-transition: top .1s linear, left .1s linear;
+}
+
+.dice-wrap-red {
+    background-color: rgb(183, 37, 30);
+}
+
+.dice-wrap-green {
+    background-color: rgb(28, 85, 17);
+}
+
+.dice-wrap-yellow {
+    background-color: rgb(154, 115, 24);
+}
+
+.dice-wrap-blue {
+    background-color: rgb(36, 63, 84);
+}
+
+@-webkit-keyframes focusdice {
+     0% { background-position: 0 -75px; }
+    25% { background-position: -90px -75px; }
+    50% { background-position: -180px -75px; }
+    75% { background-position: -270px -75px; }
+}
+
+.dice-wrap.focused {
+    -webkit-animation: focusdice .5s steps(1) infinite alternate;
+}
+
+.dice {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 60px;
+    height: 60px;
+    background-image: url('../images/dice.png');
+    cursor: pointer;
+    transform:rotate(30deg);
+}
+
+.dice-2 {
+    background-position: -60px 0;
+}
+
+.dice-3 {
+    background-position: -120px 0;
+}
+
+.dice-4 {
+    background-position: -180px 0;
+}
+
+.dice-5 {
+    background-position: -240px 0;
+}
+
+.dice-6 {
+    background-position: -300px 0;
+}
+
+.throw {
+    opacity: .3;
+}
+
+@-webkit-keyframes focusthedice {
+     0% { background-position:  -60px 0; }
+    17% { background-position: -120px 0; }
+    34% { background-position: -180px 0; }
+    51% { background-position: -240px 0; }
+    68% { background-position: -300px 0; }
+    85% { background-position:      0 0; }
+}
+
+.dice.focused {
+    -webkit-animation: focusthedice .5s steps(1) infinite alternate;
+}
+
+.dice-hint {
+    position: absolute;
+    top: -70px;
+    left: 45px;
+    width: 120px;
+    height: 80px;
+    background: url('../images/sprites.png') -240px -160px no-repeat;
+}
+.dice-hint.hide {
+	opacity:0.0;
+}

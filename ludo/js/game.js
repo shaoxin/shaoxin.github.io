@@ -317,7 +317,7 @@ Game.prototype = {
 
         console.log('init game');
 
-        game.board = new Board('board');
+        game.board = new BoardSTD('board');
         game.board.dice = new Dice('content');
 
         game.addPlayer('Player 1', RED,    game.user_nobody);
