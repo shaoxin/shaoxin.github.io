@@ -143,7 +143,7 @@ Game.prototype = {
 			if (user.type === User.TYPE.UNAVAILABLE ||
 					user.type === User.TYPE.NOBODY) {
 				console.log("skip player-" + this.players[next].color +
-						' user_type:' + user_type);
+						' user_type:' + user.type);
 				i++;
 				continue;
 			}
