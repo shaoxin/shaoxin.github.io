@@ -143,10 +143,23 @@ Pawn.prototype.step = function (oneStep, isStop) {
         });
 		this.$elem.css("-webkit-transform", "rotate("+rotation+"deg)");
 
-        if (this.position > -1) {
+    if(action !== ACTION.KILL)
+		{
+
+        if (this.position === -1) {
+            Sfx.play('plane_up');
+        }else if (this.position === game.board.getArrivePosition()) {
+            Sfx.play('win_fly_back_home');
+        }else if (this.position > 0) {
             Sfx.play('move');
         }
-    }
+             
+        
+    }else
+    	{
+    		 Sfx.play('plane_fall');
+    	}
+  }
 };
 
 Pawn.prototype.kill = function (field) {

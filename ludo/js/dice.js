@@ -29,7 +29,7 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
             var vals = [1, 2, 3, 4, 5, 6, 6, 6], // increased chance of rolling 6
                 newValue = vals[~~(Math.random() * 8)];
 
-            Sfx.play('dice', newValue === 6 ? function () { Sfx.play('six'); } : null);
+            Sfx.play('dice', newValue === 6 ? function () { Sfx.play('rolled_6'); } : null);
 
             $dice
                 .removeClass('dice-' + that.value)
