@@ -149,17 +149,14 @@ Pawn.prototype.step = function (oneStep, isStop) {
 		} else if (action === ACTION.OUTOFBASE) {
 			Sfx.play('plane_up');
 		} else if (postAction === ACTION.ARRIVE) {
-			Sfx.play('move', function() {
-				Sfx.play('win_fly_back_home');
-			});
+			Sfx.play('move');
+			Sfx.play('win_fly_back_home');
 		} else if (postAction === ACTION.JUMP) {
-			Sfx.play('move', function() {
-				Sfx.play('jump4');
-			});
+			Sfx.play('move');
+			Sfx.play('jump4');
 		} else if (postAction === ACTION.FLIGHT) {
-			Sfx.play('move', function() {
-				Sfx.play('fly_across');
-			});
+			Sfx.play('move');
+			Sfx.play('fly_across');
 		} else {
 			Sfx.play('move');
 		}
