@@ -238,7 +238,11 @@ LudoProtocol.prototype.parseProt_1_onPickup = function(senderID, msgObj) {
 		broadcastMsg.player_status = player_status;
 		this.broadcast(broadcastMsg);
 
-		this.broadcastStartGame();
+		// pick up a computer could also kick off a game
+		if (game.isReady()) {
+			this.broadcastStartGame();
+			game.start();
+		}
 	} catch (err) {
 		console.log("pickup error: " + err);
 		reply = {};
@@ -281,8 +285,10 @@ LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
 		}
 		this.broadcast(broadcastMsg);
 
-		if (orig_isready == false)
+		if (orig_isready == false && game.isReady()) {
 			this.broadcastStartGame();
+			game.start();
+		}
 	} catch(err) {
 		reply = {};
 		reply.ret = false;
@@ -291,38 +297,12 @@ LudoProtocol.prototype.parseProt_1_onGetReady = function(senderID, msgObj) {
 	}
 };
 
-LudoProtocol.prototype.parseProt_1_onDisconnect = function(senderID, msgObj) {
-	if (game.users[senderID]) {
-		delete game.users[senderID];
-	} else {
-	}
-};
-
 LudoProtocol.prototype.broadcastStartGame = function() {
-	i = 0;
-	while (p = game.players[i]) {
-		u = p.getUser();
-		if (u.type == User.TYPE.NOBODY) {
-			console.log('player ' + p.color +
-					' is not allocated a user do NOT start game');
-			return;
-		}
-		if (u.type == User.TYPE.HUMAN && u.isready == false) {
-			console.log('player ' + p.color + ' user ' + u.name +
-					' is not ready, do NOT start game');
-			return;
-		}
-		i++;
-	}
 	console.log('eveybody is ready, let us go!');
 	broadcastMsg = {};
 	broadcastMsg.command =
 		LudoProtocol.COMMAND.startgame + '_notify';
 	this.broadcast(broadcastMsg);
-	game.nextPlayer();
-	if (game.getCurrentPlayer().getUser().type === User.TYPE.COMPUTER)
-		game.board.dice.roll(rollDoneHandler,
-				rollDoneHandler_outofbusy);
 };
 
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {

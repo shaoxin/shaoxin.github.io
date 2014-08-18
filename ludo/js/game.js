@@ -241,6 +241,37 @@ Game.prototype = {
 			this.nextPlayer();
 		}
 	},
+
+	isReady: function() {
+		var i = 0, p, u;
+		while (p = game.players[i]) {
+			u = p.getUser();
+			if (u.type == User.TYPE.NOBODY) {
+				console.log('player ' + p.color +
+						' is not allocated a user do NOT start game');
+				return false;
+			}
+			if (u.type == User.TYPE.HUMAN && u.isready == false) {
+				console.log('player ' + p.color + ' user ' + u.name +
+						' is not ready, do NOT start game');
+				return false;
+			}
+			i++;
+		}
+		return true;
+	},
+
+	start: function() {
+		// pickup a player
+		this.nextPlayer();
+
+		if (this.stat !== GAME_STATUS.WAIT_FOR_DICE)
+			return;
+
+		if (this.getCurrentPlayer().getUser().type === User.TYPE.COMPUTER)
+			this.board.dice.roll(rollDoneHandler,
+					rollDoneHandler_outofbusy);
+	},
 }; // end of game.prototype
 
 
