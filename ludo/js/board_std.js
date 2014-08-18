@@ -237,7 +237,7 @@ BoardSTD.prototype.loadFields = function () {
 	/*    8*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*    8*/
 	/*    9*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*    9*/
 	/*   10*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,   180,     X,     X,     X],/*   10*/
-	/*   11*/[     X,     X,     X,     X,   225,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*   11*/
+	/*   11*/[     X,     X,     X,     X,   270,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*   11*/
 	/*   12*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*   12*/
 	/*   13*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*   13*/
 	/*   14*/[     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X,     X],/*   14*/

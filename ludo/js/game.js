@@ -18,13 +18,15 @@ var RED = 'red',
     BLUE = 'blue';
 
 var ACTION = {
-	NORMAL     : 0,
-	JUMP       : 1,
-	FLIGHT     : 2,
-	ARRIVE     : 3,
-	KILL       : 4,
-	RESET      : 5,
-	TURNRIGHT  : 6,
+	NORMAL     : "move",
+	MOVEFLIGHT : "moveToFlight",
+	JUMPFLIGHT : "jumpToFlight",
+	JUMP       : "jump",
+	FLIGHT     : "flight",
+	ARRIVE     : "arrive",
+	KILL       : "kill",
+	RESET      : "reset",
+	TURNRIGHT  : "turnright",
 };
 
 function Game() {

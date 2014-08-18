@@ -8,8 +8,8 @@ var Pawn = function (player, pawnIndex) {
     this.isArrived = false;
 };
 
-Pawn.STOP = true;
-Pawn.NOT_STOP = false;
+Pawn.STOP = "STOP";
+Pawn.NOT_STOP = "NOT_STOP";
 
 Pawn.prototype.init = function () {
     var that = this;
@@ -108,16 +108,7 @@ Pawn.prototype.step = function (oneStep, isStop) {
 	var field = oneStep.field;
 	var action = oneStep.action;
 
-    if (field) {
-        log(this.getKey() + " " +
-			"(" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
-        this.x = field.x;
-        this.y = field.y;
-    }
-
-	//if (currentField.type === )
-
-	if (isStop === this.STOP) {
+	if (isStop === Pawn.STOP) {
 		if (action === ACTION.FLIGHT) {
 			/* flight to stop */
 			rotation = field.rotForFlightStop;
@@ -126,14 +117,24 @@ Pawn.prototype.step = function (oneStep, isStop) {
 			rotation = field.rotForNormalStop;
 		}
 	} else {
-		if (field.type === ACTION.FLIGHT) {
+		if (action === ACTION.MOVEFLIGHT || action === ACTION.JUMPFLIGHT) {
 			/* will takeoff */
 			rotation = field.rotForTakeOff;
+		} else if (action === ACTION.FLIGHT) {
+			/* flight pass is the same as flight stop */
+			rotation = field.rotForFlightStop;
 		} else {
 			/* will move/jump out of field */
 			rotation = field.rotForPass;
 		}
 	}
+
+    if (field) {
+        log(this.getKey() + " " + action + "," + isStop + "," + rotation + " " +
+			"(" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
+        this.x = field.x;
+        this.y = field.y;
+    }
 
     if (this.$elem) {
         this.$elem.css({

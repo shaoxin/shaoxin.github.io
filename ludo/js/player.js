@@ -221,11 +221,13 @@ Player.prototype.move = function (distance, pawn) {
 			fields.push({action: ACTION.JUMP, field: destField});
 
 			if (destField.action === ACTION.FLIGHT) {
+				fields[fields.length-1].action=ACTION.JUMPFLIGHT;
 				nextPos = nextPos + this.board.getFLIGHTdelta(destField);
 				destField = this.board.getField(this.path[nextPos]);
 				fields.push({action: ACTION.FLIGHT, field: destField});
 			}
 		} else if (destField.action === ACTION.FLIGHT) {
+			fields[fields.length-1].action=ACTION.MOVEFLIGHT;
 			nextPos = nextPos + this.board.getFLIGHTdelta(destField);
 			destField = this.board.getField(this.path[nextPos]);
 			fields.push({action: ACTION.FLIGHT, field: destField});
