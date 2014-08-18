@@ -232,7 +232,7 @@ Player.prototype.move = function (distance, pawn) {
 
 			nextPos = nextPos + this.board.getJUMPdelta(destField);
 			destField = this.board.getField(this.path[nextPos]);
-			fields.push({action: ACTION.FLIGHT, field: destField});
+			fields.push({action: ACTION.JUMP, field: destField});
 		}
 	}
 
