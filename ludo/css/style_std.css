@@ -69,7 +69,6 @@ body {
     color: #fff;
     font-weight: bold;
     font-size: 18px;
-    //text-transform: uppercase;
     text-shadow: 1px 1px 2px #000;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -147,8 +146,13 @@ body {
 }
 
 .pawn-red.focused {
-    box-shadow: 0 0 8px 9px #eeeeee;
-	//-webkit-animation-name: focusred;
+	-webkit-animation:focusred; /* Safari and Chrome */
+	-webkit-animation-duration: 1s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-delay: 0s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: normal;
+	-webkit-animation-play-state: running;
 }
 
 .pawn-green {
@@ -156,8 +160,13 @@ body {
 }
 
 .pawn-green.focused {
-    box-shadow: 0 0 8px 9px #eeeeee;
-    //-webkit-animation-name: focusgreen;
+    -webkit-animation-name: focusgreen;
+	  -webkit-animation-duration: 1s;
+		-webkit-animation-timing-function: linear;
+		-webkit-animation-delay: 0s;
+		-webkit-animation-iteration-count: infinite;
+		-webkit-animation-direction: normal;
+		-webkit-animation-play-state: running;
 }
 
 .pawn-yellow {
@@ -165,8 +174,13 @@ body {
 }
 
 .pawn-yellow.focused {
-    box-shadow: 0 0 8px 9px #eeeeee;
-    //-webkit-animation-name: focusyellow;
+    -webkit-animation-name: focusyellow;
+		-webkit-animation-duration: 1s;
+		-webkit-animation-timing-function: linear;
+		-webkit-animation-delay: 0s;
+		-webkit-animation-iteration-count: infinite;
+		-webkit-animation-direction: normal;
+		-webkit-animation-play-state: running;    
 }
 
 .pawn-blue {
@@ -174,44 +188,72 @@ body {
 }
 
 .pawn-blue.focused {
-    box-shadow: 0 0 8px 9px #eeeeee;
-    //-webkit-animation-name: focusblue;
+    -webkit-animation-name: focusblue;
+		-webkit-animation-duration: 1s;
+		-webkit-animation-timing-function: linear;
+		-webkit-animation-delay: 0s;
+		-webkit-animation-iteration-count: infinite;
+		-webkit-animation-direction: normal;
+		-webkit-animation-play-state: running;    
 }
 
-//228  53 22
-//27  202 233 1bcae9
+
 @-webkit-keyframes focusred {
-    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
-    25% { box-shadow: 0 0 8px 3px #eeeeee; }
-    50% { box-shadow: 0 0 8px 6px #eeeeee; }
-    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+    0%  { box-shadow: 0 0 8px 0px #ffffff; }
+    10% { box-shadow: 0 0 8px 2px #ffffff; }
+    20% { box-shadow: 0 0 8px 4px #ffffff; }    
+    30% { box-shadow: 0 0 8px 6px #ffffff; }
+    40% { box-shadow: 0 0 8px 8px #ffffff; }
+    50% { box-shadow: 0 0 8px 10px #ffffff; }
+    60% { box-shadow: 0 0 8px 8px #ffffff; }
+    70% { box-shadow: 0 0 8px 6px #ffffff; }    
+    80% { box-shadow: 0 0 8px 4px #ffffff; }
+    90% { box-shadow: 0 0 8px 2px #ffffff; }         
 }
 
-//21  141 22
-//234 114 233 ea72e9
+/*21  141 22
+//234 114 233 ea72e9*/
 @-webkit-keyframes focusgreen {
-    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
-    25% { box-shadow: 0 0 8px 3px #eeeeee; }
-    50% { box-shadow: 0 0 8px 6px #eeeeee; }
-    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+    0%  { box-shadow: 0 0 8px 0px #ffffff; }
+    10% { box-shadow: 0 0 8px 2px #ffffff; }
+    20% { box-shadow: 0 0 8px 4px #ffffff; }    
+    30% { box-shadow: 0 0 8px 6px #ffffff; }
+    40% { box-shadow: 0 0 8px 8px #ffffff; }
+    50% { box-shadow: 0 0 8px 10px #ffffff; }
+    60% { box-shadow: 0 0 8px 8px #ffffff; }
+    70% { box-shadow: 0 0 8px 6px #ffffff; }    
+    80% { box-shadow: 0 0 8px 4px #ffffff; }
+    90% { box-shadow: 0 0 8px 2px #ffffff; }     
 }
 
-//254 209 6
-//1   46  249 012ef9
+/*254 209 6
+//1   46  249 012ef9*/
 @-webkit-keyframes focusyellow {
-    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
-    25% { box-shadow: 0 0 8px 3px #eeeeee; }
-    50% { box-shadow: 0 0 8px 6px #eeeeee; }
-    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+    0%  { box-shadow: 0 0 8px 0px #ffffff; }
+    10% { box-shadow: 0 0 8px 2px #ffffff; }
+    20% { box-shadow: 0 0 8px 4px #ffffff; }    
+    30% { box-shadow: 0 0 8px 6px #ffffff; }
+    40% { box-shadow: 0 0 8px 8px #ffffff; }
+    50% { box-shadow: 0 0 8px 10px #ffffff; }
+    60% { box-shadow: 0 0 8px 8px #ffffff; }
+    70% { box-shadow: 0 0 8px 6px #ffffff; }    
+    80% { box-shadow: 0 0 8px 4px #ffffff; }
+    90% { box-shadow: 0 0 8px 2px #ffffff; }     
 }
 
-//13  117 196
-//242 138 59  f28a3b
+/*13  117 196*/
+/*242 138 59  f28a3b*/
 @-webkit-keyframes focusblue {
-    0%  { box-shadow: 0 0 8px 0px #eeeeee; }
-    25% { box-shadow: 0 0 8px 3px #eeeeee; }
-    50% { box-shadow: 0 0 8px 6px #eeeeee; }
-    75% { box-shadow: 0 0 8px 9px #eeeeee; }
+    0%  { box-shadow: 0 0 8px 0px #ffffff; }
+    10% { box-shadow: 0 0 8px 2px #ffffff; }
+    20% { box-shadow: 0 0 8px 4px #ffffff; }    
+    30% { box-shadow: 0 0 8px 6px #ffffff; }
+    40% { box-shadow: 0 0 8px 8px #ffffff; }
+    50% { box-shadow: 0 0 8px 10px #ffffff; }
+    60% { box-shadow: 0 0 8px 8px #ffffff; }
+    70% { box-shadow: 0 0 8px 6px #ffffff; }    
+    80% { box-shadow: 0 0 8px 4px #ffffff; }
+    90% { box-shadow: 0 0 8px 2px #ffffff; }     
 }
 
 
