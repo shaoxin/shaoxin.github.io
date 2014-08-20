@@ -66,6 +66,7 @@ Pawn.prototype.move = function (steps, callback) {
     var that = this;
 
     function doStep(steps, callback) {
+	var oneStep;
         if (steps.length > 1) {
             oneStep = steps.shift();
             that.step.call(that, oneStep, Pawn.NOT_STOP);
