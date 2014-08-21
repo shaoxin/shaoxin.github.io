@@ -8,7 +8,9 @@ var GAME_STATUS = {
 	WAIT_FOR_CONNECTION: 'wait_for_connection',
 	WAIT_FOR_READY:      'wait_for_ready',
 	WAIT_FOR_DICE:       'wait_for_rolling_dice',
-	WAIT_FOR_PAWN:       'wait_for_moving_pawn'
+	WAIT_FOR_PAWN:       'wait_for_moving_pawn',
+	RESET:               'reset',
+	GAME_OVER:           'game_over',
 };
 
 	/* CSS are hard coded following these colors*/
@@ -82,13 +84,6 @@ Game.prototype = {
 
 	showUI_waitForStartOfGame: function() {
 		this.uiWelcome.hide();
-    /*<div id="content">
-        <div id="board"></div>
-        <div id="sidebar">
-            <div class="arrow"></div>
-            <ul id="players-list"></ul>
-        </div>
-    </div>*/
 		this.uiContent.show();
 	},
 
@@ -111,19 +106,18 @@ Game.prototype = {
 
     playAward : function () {
         this.board.dice.focus();
-        this.board.dice.showHint();
         this.stat = GAME_STATUS.WAIT_FOR_DICE;
     },
 
     nextPlayer : function () {
         var next = this.current,
-            arrow = $('.arrow'),
             i = 0;
 
         if (this.numDone == 4) {
             this.getCurrentPlayer().blur();
-			arrow.hide();
+			this.board.hideArrow();
             console.log('all players are done, need to restart the game');
+			this.stat = GAME_STATUS.GAME_OVER;
             return;
         }
 
@@ -132,7 +126,6 @@ Game.prototype = {
             i++;
         }
 
-        arrow.removeClass('arrow-' + this.current);
         i = 0;
         while (i < 4) {
             if (next == 3) {
@@ -161,12 +154,10 @@ Game.prototype = {
 				"to " + this.getPlayerFromIndex(next).color);
         else
             console.log("player " + this.getPlayerFromIndex(next).color + " starts");
-        this.current = next > 3 ? 0 : next;
-        arrow.addClass('arrow-' + this.current);
-		arrow.show();
+        this.current = next;
+		this.board.showArrow(this.getCurrentPlayer().color);
         //game.players[game.current].focus();
         this.board.dice.focus();
-        this.board.dice.showHint();
         this.board.dice.setPlayer(this.getCurrentPlayer());
         this.stat = GAME_STATUS.WAIT_FOR_DICE;
     },
@@ -278,6 +269,44 @@ Game.prototype = {
 			this.board.dice.roll(rollDoneHandler,
 					rollDoneHandler_outofbusy);
 	},
+
+	doReset: function() {
+		// arrow
+		this.board.resetArrow();
+
+		// dice
+		this.board.dice.busy = false;
+		this.board.dice.blur();
+
+		// player and pawns
+		var i = 0;
+		while (p = this.players[i]) {
+			p.reset();
+			i++;
+		}
+		this.current = -1;
+
+		// user
+		for (var e in this.users) {
+			var u = this.users[e];
+			if (u.type === User.TYPE.HUMAN)
+				u.isready = false;
+		}
+	},
+
+	reset: function() {
+		if (this.stat !== GAME_STATUS.WAIT_FOR_DICE &&
+				this.stat !== GAME_STATUS.WAIT_FOR_PAWN &&
+				this.stat !== GAME_STATUS.GAME_OVER)
+			return;
+		this.stat = GAME_STATUS.RESET;
+
+		if (this.getCurrentPlayer().isMoving)
+			return;
+
+		this.doReset();
+		this.stat = GAME_STATUS.WAIT_FOR_READY;
+	},
 }; // end of game.prototype
 
 
@@ -373,6 +402,9 @@ Game.prototype = {
     function rollDoneHandler(newValue) {
         var player = game.getCurrentPlayer();
 
+		if (!player)
+			return;
+
         console.log('rollDoneHandler inbusy: currentPlayer=' + player.color +
 				' dice=' + newValue);
 
@@ -387,6 +419,10 @@ Game.prototype = {
     }
 	function rollDoneHandler_outofbusy(diceValue) {
         var player = game.getCurrentPlayer();
+
+		if (!player)
+			return;
+
 		var user = player.getUser();
 
         console.log('rollDoneHandler postbusy: currentPlayer=' + player.color +
@@ -405,7 +441,6 @@ Game.prototype = {
 
     function handlemsg_prehistoric(channel, msg) {
         var player = game.getCurrentPlayer();
-        var pawn = player.getCurrentPawn();
 
         console.log("'" + msg +
 			"' received in handlemsg from channel " + channel);
@@ -425,6 +460,12 @@ Game.prototype = {
             return;
         }
 
+		if (!player) {
+			console.log("handlemsg_prehistoric no current player, game.stat=" + game.stat);
+			return;
+		}
+
+        var pawn = player.getCurrentPawn();
 		var currentChannel = player.getUser().senderID;
         if (currentChannel != channel) {
             console.log("" + channel + ", it's not your turn, but for " +
@@ -497,7 +538,7 @@ Game.prototype = {
         } else if (event.keyCode === 85 /*'u'*/) {
 			if (game.user_test)
 				return;
-			game.testChannel = "testChannel";
+			game.testChannel = "keyboard";
 			game.user_test =
 				new User(User.TYPE.HUMAN, User.READY, "test",
 						game.testChannel);
@@ -510,7 +551,7 @@ Game.prototype = {
 				console.log('host already connected, nothing to do');
 				return;
 			}
-			game.testChannel = "testChannel";
+			game.testChannel = "keyboard";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
 		} else if (event.keyCode === 80 /* 'p'*/) {
@@ -526,9 +567,13 @@ Game.prototype = {
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
 		} else if (event.keyCode === 68 /* 'd' disconnect*/) {
-			game.testChannel = "testChannel";
+			game.testChannel = "keyboard";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"disconnect"}');
+		} else if (event.keyCode === 83 /* 's' reSet*/) {
+			game.testChannel = "keyboard";
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"reset"}');
 		}
     }
 

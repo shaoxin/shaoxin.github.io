@@ -47,29 +47,6 @@ Player.prototype.initPawns = function () {
     this.currentPawn = 0;
 };
 
-Player.prototype.resetPawns = function () {
-    var i = 0,
-        field,
-        pawn;
-
-	while (this.isMoving)
-		console.log('wait for player-' + this.color + ' to stop');
-
-    for (i = 0; i < 4; i++) {
-        pawn = this.pawns[i];
-		if (pawn.position === -1)
-			continue;
-        field = this.board.getBaseFreeField(this.color);
-        if (field) {
-            pawn.move([{action: ACTION.RESET,
-				field: field}]);
-        } else {
-			console.log("no base field for " + pawn.getKey());
-		}
-    }
-    this.currentPawn = 0;
-};
-
 Player.prototype.getCurrentPawn = function () {
     return this.pawns[this.currentPawn] || null;
 }
@@ -359,6 +336,9 @@ Player.prototype.move = function (distance, pawn) {
             }
             player.isMoving = false;
 
+			if (game.stat === GAME_STATUS.RESET)
+				game.doReset();
+
 			// TODO: if it's time for computer to roll
 			//       do it automatically
 			player = game.getCurrentPlayer();
@@ -374,4 +354,22 @@ Player.prototype.move = function (distance, pawn) {
         });
 
     return true;
+};
+
+Player.prototype.reset = function () {
+	if (this.isMoving) {
+		console.error("reset moving player-" + this.color);
+		return;
+	}
+
+	this.blur();
+
+    var i = 0, field, pawn;
+    for (i = 0; i < this.pawns.length; i++) {
+        pawn = this.pawns[i];
+		pawn.reset();
+    }
+	this.currentPawn = 0;
+
+	this.numArrived = 0;
 };

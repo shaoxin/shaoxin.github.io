@@ -179,3 +179,23 @@ Pawn.prototype.kill = function (field) {
 Pawn.prototype.getKey = function () {
 	return "" + this.player.color + this.pawnIndex;
 };
+
+Pawn.prototype.reset = function () {
+	if (this.isArrived) {
+		this.$elem.removeClass('arrive');
+		this.isArrived = false;
+		this.position = -1;
+		return;
+	}
+	if (this.position === -1)
+		return;
+
+	var field = game.board.getBaseFreeField(this.player.color);
+	if (field) {
+		this.move([{action: ACTION.RESET,
+			field: field}]);
+		this.position = -1;
+	} else {
+		console.log("pawn.reset: no base field for " + this.getKey());
+	}
+};

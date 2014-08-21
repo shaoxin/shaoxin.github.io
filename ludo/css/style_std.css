@@ -102,19 +102,19 @@ body {
 	display: none;
 }
 
-.arrow-0 {
+.arrow-red {
     top: 40px;
 }
 
-.arrow-1 {
+.arrow-green {
     top: 80px;
 }
 
-.arrow-2 {
+.arrow-yellow {
     top: 120px;
 }
 
-.arrow-3 {
+.arrow-blue {
     top: 160px;
 }
 

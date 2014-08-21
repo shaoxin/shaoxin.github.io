@@ -1,5 +1,7 @@
 var Board = function (id) {
     this.$elem = $('#' + id);
+	this.arrow = $('.arrow');
+	this.arrowColor = undefined;
     
     if (!this.$elem.length) {
         this.$elem = $('<div/>');
@@ -26,6 +28,27 @@ var Board = function (id) {
     this.reset();
 	this.initBases();
 	this.initDestinations();
+};
+
+BoardSTD.prototype.resetArrow = function() {
+	this.arrow.hide();
+	this.arrow.removeClass('arrow-' + this.arrowColor);
+	this.arrowColor = undefined;
+};
+
+Board.prototype.hideArrow = function() {
+	this.arrow.hide();
+	this.arrow.removeClass('arrow-' + this.arrowColor);
+};
+
+Board.prototype.showArrow = function(color) {
+	if (color !== this.arrowColor) {
+		this.arrow.hide();
+		this.arrow.removeClass('arrow-' + this.arrowColor);
+		this.arrowColor = color;
+		this.arrow.addClass('arrow-' + this.arrowColor);
+	}
+	this.arrow.show();
 };
 
 Board.prototype.updatePlayerList = function(color, name) {

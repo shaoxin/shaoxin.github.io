@@ -20,7 +20,6 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
         this.busy = true;
 
 		that.blur();
-		that.hideHint();
 
         $dice = this.$elem.find('.dice');
         this.$elem.addClass('throw');
@@ -76,12 +75,14 @@ Dice.prototype.focus = function () {
     this.$elem.addClass('focused');
     this.$diceelem.addClass('focused');
     this.isFocused = true;
+	this.showHint();
 };
 
 Dice.prototype.blur = function () {
     this.$elem.removeClass('focused');
     this.$diceelem.removeClass('focused');
     this.isFocused = false;
+	this.hideHint();
 };
 
 Dice.prototype.setPlayer = function(player) {

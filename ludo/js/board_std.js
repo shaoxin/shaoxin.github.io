@@ -1,6 +1,8 @@
 var BoardSTD = function (id) {
     this.$elem = $('#' + id);
 	document.getElementById('board_style').href="css/style_std.css";
+	this.arrow = $('.arrow');
+	this.arrowColor = undefined;
 
 	this.pawnPixels = 36;
     
@@ -34,6 +36,27 @@ var BoardSTD = function (id) {
     this.loadFields();
 	this.initBases();
 	this.initDestinations();
+};
+
+BoardSTD.prototype.resetArrow = function() {
+	this.arrow.hide();
+	this.arrow.removeClass('arrow-' + this.arrowColor);
+	this.arrowColor = undefined;
+};
+
+BoardSTD.prototype.hideArrow = function() {
+	this.arrow.hide();
+	this.arrow.removeClass('arrow-' + this.arrowColor);
+};
+
+BoardSTD.prototype.showArrow = function(color) {
+	if (color !== this.arrowColor) {
+		this.arrow.hide();
+		this.arrow.removeClass('arrow-' + this.arrowColor);
+		this.arrowColor = color;
+		this.arrow.addClass('arrow-' + this.arrowColor);
+	}
+	this.arrow.show();
 };
 
 BoardSTD.prototype.updatePlayerList = function(color, name) {
