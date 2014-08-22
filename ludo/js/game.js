@@ -42,6 +42,10 @@ function Game() {
 	this.playersColorIndex = {};
 	this.playerList = null;
 
+	this.USER_OP_TIMEOUT = 3;
+	this.countDown = this.USER_OP_TIMEOUT;
+	this.countDownPlayer = null;
+
 	this.proto = new LudoProtocol();
 
 	this.level = AI_LEVEL.medium;
@@ -148,13 +152,27 @@ Game.prototype = {
             }
             break;
         }
-        if (this.current >= 0)
+
+		var player = this.getCurrentPlayer();
+		if (player && player.getUser().type === User.TYPE.HUMAN)
+			player.setTimeOutStat(false);
+
+		var next_player = this.getPlayerFromIndex(next);
+		if (next_player.getUser().type === User.TYPE.HUMAN) {
+			game.countDownPlayer = next_player;
+			next_player.setTimeOutStat(false);
+		} else {
+			game.countDownPlayer = null;
+		}
+
+        if (player)
             console.log("player switch from " +
 				this.getCurrentPlayer().color + " " +
-				"to " + this.getPlayerFromIndex(next).color);
+				"to " + next_player.color);
         else
-            console.log("player " + this.getPlayerFromIndex(next).color + " starts");
+            console.log("player " + next_player.color + " starts");
         this.current = next;
+
 		this.board.showArrow(this.getCurrentPlayer().color);
         //game.players[game.current].focus();
         this.board.dice.focus();
@@ -264,6 +282,17 @@ Game.prototype = {
 
 		if (this.stat !== GAME_STATUS.WAIT_FOR_DICE)
 			return;
+
+		var player = this.getCurrentPlayer();
+		var user = player.getUser();
+
+		if (user.type === User.TYPE.HUMAN) {
+			this.countDown = this.USER_OP_TIMEOUT;
+			this.board.showCountDown(game.countDown);
+			player.startCountDown(autoActionForRollDice);
+
+			return;
+		}
 
 		if (this.getCurrentPlayer().getUser().type === User.TYPE.COMPUTER)
 			this.board.dice.roll(rollDoneHandler,
@@ -392,12 +421,56 @@ Game.prototype = {
         game.addPlayer('Player 4', BLUE,   game.user_nobody);
 
         game.stat = GAME_STATUS.WAIT_FOR_CONNECTION;
-//        game.nextPlayer();
 
 		initChromecast();
 
 		game.showUI_waitForConnection();
     }
+
+	function autoActionForRollDice() {
+		var player = game.countDownPlayer;
+		if (!player)
+			return;
+
+		if (game.stat !== GAME_STATUS.WAIT_FOR_DICE ||
+				game.board.dice.busy === true)
+			return;
+
+		game.countDown--;
+		game.board.showCountDown(game.countDown);
+
+		if (game.countDown === 0) {
+			player.setTimeOutStat(true);
+			player.stopCountDown();
+			game.board.dice.roll(rollDoneHandler,
+					rollDoneHandler_outofbusy);
+		}
+	}
+
+	function autoActionForMovePawn() {
+		var player = game.countDownPlayer;
+		if (!player)
+			return;
+
+		if ((game.stat !== GAME_STATUS.WAIT_FOR_DICE &&
+					game.stat !== GAME_STATUS.WAIT_FOR_PAWN) ||
+				game.board.dice.busy === true ||
+				player.isMoving === true)
+			return;
+
+		game.countDown--;
+		game.board.showCountDown(game.countDown);
+
+		if (game.countDown === 0) {
+			player.setTimeOutStat(true);
+			if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
+				game.board.dice.roll(rollDoneHandler,
+						rollDoneHandler_outofbusy);
+			} else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
+				player.selectPawnAndMove(game.board.dice.getValue());
+			}
+		}
+	}
 
     function rollDoneHandler(newValue) {
         var player = game.getCurrentPlayer();
@@ -425,12 +498,25 @@ Game.prototype = {
 
 		var user = player.getUser();
 
-        console.log('rollDoneHandler postbusy: currentPlayer=' + player.color +
+        console.log('rollDoneHandler_outofbusy: currentPlayer=' + player.color +
 				' dice=' + diceValue);
 
-		if (user.type != User.TYPE.COMPUTER) {
-			return;
+		if (user.type === User.TYPE.HUMAN) {
+			if (player.getTimeOutStat() === false) {
+				game.countDown = game.USER_OP_TIMEOUT;
+				game.board.showCountDown(game.countDown);
+				if (game.stat === GAME_STATUS.WAIT_FOR_DICE)
+					player.startCountDown(autoActionForRollDice);
+				else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN)
+					player.startCountDown(autoActionForMovePawn);
+				return;
+			}
 		}
+
+		if (user.type !== User.TYPE.COMPUTER &&
+				player.getTimeOutStat() === false)
+			return;
+
 		if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
             game.board.dice.roll(rollDoneHandler,
 						rollDoneHandler_outofbusy);
@@ -584,4 +670,6 @@ Game.prototype = {
 	//TODO export as less as possible
 	global.rollDoneHandler = rollDoneHandler;
 	global.rollDoneHandler_outofbusy = rollDoneHandler_outofbusy;
+	global.autoActionForMovePawn = autoActionForMovePawn;
+	global.autoActionForRollDice = autoActionForRollDice;
 }(this));

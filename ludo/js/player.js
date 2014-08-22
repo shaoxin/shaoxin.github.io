@@ -8,8 +8,20 @@ var Player = function (name, color, board) {
     this.isFinished = false;
     this.numArrived = 0;
     this.isMoving = false;
+	this.isTimeOut = false;
+	this.autoAction = undefined;
 
     this.user = null;
+};
+
+Player.prototype.setTimeOutStat = function(isTimeOut) {
+	console.log("setTimeOutStat player-" + this.color + 
+			" " + this.isTimeOut + "->" + isTimeOut);
+	this.isTimeOut = isTimeOut;
+};
+
+Player.prototype.getTimeOutStat = function() {
+	return this.isTimeOut;
 };
 
 Player.prototype.setUser = function(user) {
@@ -106,26 +118,42 @@ Player.prototype.selectPawnAndMove = function(diceValue) {
 	// if current pawn is OK, that's it
 	// otherwise do some simple search
 
-	if (this.pawns[this.currentPawn].position >= 0) {
-		this.move(diceValue, this.pawns[this.currentPawn]);
+	// 1. current pawn out of base
+	var pawn = this.pawns[this.currentPawn];
+	if (pawn.position >= 0) {
+		this.move(diceValue, pawn);
 		return;
 	}
 
-	i = 0;
-	while (this.pawns[i]) {
-		if (this.pawns[i].isArrived == false &&
-				this.pawns[i].position >= 0) {
+	// 2. other pawns out of base
+	var i = 0, pawn;
+	while (pawn = this.pawns[i]) {
+		if (pawn.isArrived == false && pawn.position >= 0) {
+			this.currentPawn = i;
 			this.move(diceValue, pawn);
 			return;
 		}
 		i++;
 	}
-	if (diceValue == 6)
-		this.move(diceValue, this.pawns[this.currentPawn]);
-	else
+
+	// 3. pawns inside base
+	if (diceValue == 6) {
+		i = this.currentPawn;
+		while (pawn = this.pawns[i]) {
+			if (pawn.isArrived == false) {
+				this.currentPawn = i;
+				this.move(diceValue, pawn);
+				return;
+			}
+			i++;
+			if (i === this.pawns.length)
+				i = 0;
+		}
+	} else {
 		console.log("no pawn selected to move, currentPawn=" +
 				this.currentPawn + " pos=" +
 				this.pawns[this.currentPawn].position);
+	}
 };
 
 Player.prototype.focus = function () {
@@ -136,6 +164,16 @@ Player.prototype.focus = function () {
 Player.prototype.blur = function () {
     this.isFocused = false;
     this.getCurrentPawn().blur();
+};
+
+Player.prototype.startCountDown = function(func) {
+	console.log('startCountDown player-' + this.color);
+	this.autoAction = setInterval(func, 1000);
+};
+
+Player.prototype.stopCountDown = function() {
+	console.log('stopCountDown player-' + this.color);
+	clearInterval(this.autoAction);
 };
 
 Player.prototype.move = function (distance, pawn) {
@@ -155,6 +193,17 @@ Player.prototype.move = function (distance, pawn) {
         log("avoid move reentrance for player " + this.color);
         return false;
     }
+
+	if (game.countDownPlayer === this) {
+		console.log('stop countDown this player-' + this.color);
+		this.stopCountDown();
+	} else {
+		if (game.countDownPlayer) {
+			console.log('stop countDown other player-' +
+					game.countDownPlayer.color);
+			game.countDownPlayer.stopCountDown();
+		}
+	}
 
     this.isMoving = true;
     // pawn is still inside base
@@ -336,15 +385,30 @@ Player.prototype.move = function (distance, pawn) {
             }
             player.isMoving = false;
 
-			if (game.stat === GAME_STATUS.RESET)
+			if (game.stat === GAME_STATUS.RESET) {
 				game.doReset();
+				return;
+			}
 
-			// TODO: if it's time for computer to roll
-			//       do it automatically
 			player = game.getCurrentPlayer();
+			if (!player)
+				return;
 			user = player.getUser();
 
-			if (user.type != User.TYPE.COMPUTER)
+			if (user.type === User.TYPE.HUMAN) {
+				if (player.getTimeOutStat() === false) {
+					game.countDown = game.USER_OP_TIMEOUT;
+					game.board.showCountDown(game.countDown);
+					player.startCountDown(autoActionForRollDice);
+
+					return;
+				}
+			}
+
+			/* if it's time for computer to roll
+			   do it automatically*/
+			if (user.type != User.TYPE.COMPUTER &&
+					player.getTimeOutStat() === false)
 				return;
 			if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
 				game.board.dice.roll(rollDoneHandler,

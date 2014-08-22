@@ -38,6 +38,10 @@ var BoardSTD = function (id) {
 	this.initDestinations();
 };
 
+BoardSTD.prototype.showCountDown = function(count) {
+	console.log("showCountDown: " + count);
+};
+
 BoardSTD.prototype.resetArrow = function() {
 	this.arrow.hide();
 	this.arrow.removeClass('arrow-' + this.arrowColor);

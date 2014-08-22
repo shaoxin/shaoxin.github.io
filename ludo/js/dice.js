@@ -17,6 +17,8 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
     if (this.$elem) {
         if (this.busy)
             return;
+		if (game.countDownPlayer)
+			game.countDownPlayer.stopCountDown();
         this.busy = true;
 
 		that.blur();

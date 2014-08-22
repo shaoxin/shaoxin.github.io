@@ -30,7 +30,11 @@ var Board = function (id) {
 	this.initDestinations();
 };
 
-BoardSTD.prototype.resetArrow = function() {
+Board.prototype.showCountDown = function(count) {
+	console.log("showCountDown: " + count);
+};
+
+Board.prototype.resetArrow = function() {
 	this.arrow.hide();
 	this.arrow.removeClass('arrow-' + this.arrowColor);
 	this.arrowColor = undefined;
