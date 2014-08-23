@@ -32,6 +32,10 @@ var Board = function (id) {
 
 Board.prototype.showCountDown = function(count) {
 	console.log("showCountDown: " + count);
+	if (count < 10)
+		$('#countdown').html('0'+count);
+	else
+		$('#countdown').html(''+count);
 };
 
 Board.prototype.resetArrow = function() {

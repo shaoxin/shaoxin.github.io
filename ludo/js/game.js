@@ -42,7 +42,7 @@ function Game() {
 	this.playersColorIndex = {};
 	this.playerList = null;
 
-	this.USER_OP_TIMEOUT = 3;
+	this.USER_OP_TIMEOUT = 20;
 	this.countDown = this.USER_OP_TIMEOUT;
 	this.countDownPlayer = null;
 
@@ -110,6 +110,14 @@ Game.prototype = {
 
     playAward : function () {
         this.board.dice.focus();
+
+		var player = this.getCurrentPlayer();
+		var user = player.getUser();
+
+		if (user.type === User.TYPE.HUMAN &&
+				player.getTimeOutStat() === false)
+			player.startCountDown(autoActionForRollDice);
+
         this.stat = GAME_STATUS.WAIT_FOR_DICE;
     },
 
@@ -177,6 +185,13 @@ Game.prototype = {
         //game.players[game.current].focus();
         this.board.dice.focus();
         this.board.dice.setPlayer(this.getCurrentPlayer());
+
+		this.countDown = this.USER_OP_TIMEOUT;
+		console.log("init countDown=" + this.countDown);
+
+		if (next_player.getUser().type === User.TYPE.HUMAN)
+			next_player.startCountDown(autoActionForRollDice);
+
         this.stat = GAME_STATUS.WAIT_FOR_DICE;
     },
 
@@ -286,15 +301,7 @@ Game.prototype = {
 		var player = this.getCurrentPlayer();
 		var user = player.getUser();
 
-		if (user.type === User.TYPE.HUMAN) {
-			this.countDown = this.USER_OP_TIMEOUT;
-			this.board.showCountDown(game.countDown);
-			player.startCountDown(autoActionForRollDice);
-
-			return;
-		}
-
-		if (this.getCurrentPlayer().getUser().type === User.TYPE.COMPUTER)
+		if (user.type === User.TYPE.COMPUTER)
 			this.board.dice.roll(rollDoneHandler,
 					rollDoneHandler_outofbusy);
 	},
@@ -441,7 +448,6 @@ Game.prototype = {
 
 		if (game.countDown === 0) {
 			player.setTimeOutStat(true);
-			player.stopCountDown();
 			game.board.dice.roll(rollDoneHandler,
 					rollDoneHandler_outofbusy);
 		}
@@ -485,8 +491,13 @@ Game.prototype = {
                 (newValue !== 6)) {
             game.nextPlayer();
         } else {
+			var user = player.getUser();
+			if (user.type === User.TYPE.HUMAN &&
+					player.getTimeOutStat() === false)
+				player.startCountDown(autoActionForMovePawn);
+
 			// TODO: select a pawn before focus the player
-            game.getCurrentPlayer().focus();
+            player.focus();
             game.stat = GAME_STATUS.WAIT_FOR_PAWN;
         }
     }
@@ -500,18 +511,6 @@ Game.prototype = {
 
         console.log('rollDoneHandler_outofbusy: currentPlayer=' + player.color +
 				' dice=' + diceValue);
-
-		if (user.type === User.TYPE.HUMAN) {
-			if (player.getTimeOutStat() === false) {
-				game.countDown = game.USER_OP_TIMEOUT;
-				game.board.showCountDown(game.countDown);
-				if (game.stat === GAME_STATUS.WAIT_FOR_DICE)
-					player.startCountDown(autoActionForRollDice);
-				else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN)
-					player.startCountDown(autoActionForMovePawn);
-				return;
-			}
-		}
 
 		if (user.type !== User.TYPE.COMPUTER &&
 				player.getTimeOutStat() === false)
@@ -527,9 +526,6 @@ Game.prototype = {
 
     function handlemsg_prehistoric(channel, msg) {
         var player = game.getCurrentPlayer();
-
-        console.log("'" + msg +
-			"' received in handlemsg from channel " + channel);
 
         if (msg === 'join') {
             var i = game.pickupIndex;
@@ -547,11 +543,11 @@ Game.prototype = {
         }
 
 		if (!player) {
-			console.log("handlemsg_prehistoric no current player, game.stat=" + game.stat);
+			console.log("handlemsg_prehistoric no current player, game.stat=" +
+					game.stat);
 			return;
 		}
 
-        var pawn = player.getCurrentPawn();
 		var currentChannel = player.getUser().senderID;
         if (currentChannel != channel) {
             console.log("" + channel + ", it's not your turn, but for " +
@@ -559,12 +555,18 @@ Game.prototype = {
             return;
         }
 
+		if (player.getTimeOutStat() === true) {
+			console.log("player-"+player.color + " timed out, ignore user op");
+			return;
+		}
+
         if (msg === 'click') {
             if (game.stat === GAME_STATUS.WAIT_FOR_DICE) {
                 game.board.dice.roll(rollDoneHandler,
 						rollDoneHandler_outofbusy);
             } else if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
-                player.move(game.board.dice.getValue(), pawn);
+                player.move(game.board.dice.getValue(),
+						player.getCurrentPawn());
             }
         } else if (msg === 'next') {
             if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
@@ -598,15 +600,18 @@ Game.prototype = {
     }
 
     document.onkeydown = function(event) {
-        console.log('key ' + event.keyCode + ' pressed!');
         if (event.keyCode === 13 /*'enter'*/) {
+			console.log('key Enter pressed!');
             handlemsg(game.testChannel, 'click');
 			//handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
         } else if (event.keyCode === 37 /*left*/) {
+			console.log('key Left/prev-pawn pressed!');
             handlemsg(game.testChannel, 'prev');
         } else if (event.keyCode === 39 /*right*/) {
+			console.log('key Right/next-pawn pressed!');
             handlemsg(game.testChannel, 'next');
         } else if (event.keyCode === 65 /*'a'*/) {
+			console.log('key Ai pressed!');
 			if (typeof computer_kicked_off !== 'undefined') {
 				console.log("computer battle already started");
 				return;
@@ -622,6 +627,7 @@ Game.prototype = {
             game.board.dice.roll(rollDoneHandler,
 						rollDoneHandler_outofbusy);
         } else if (event.keyCode === 85 /*'u'*/) {
+			console.log('key User pressed!');
 			if (game.user_test)
 				return;
 			game.testChannel = "keyboard";
@@ -633,6 +639,7 @@ Game.prototype = {
 			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
 		} else if (event.keyCode === 67 /* 'c' connect*/) {
+			console.log('key Connect pressed!');
 			if (game.num_user !== 0) {
 				console.log('host already connected, nothing to do');
 				return;
@@ -641,6 +648,7 @@ Game.prototype = {
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
 		} else if (event.keyCode === 80 /* 'p'*/) {
+			console.log('key Pickup pressed!');
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
 			handlemsg(game.testChannel,
@@ -650,16 +658,21 @@ Game.prototype = {
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"blue", "user_type":"human"}');
 		} else if (event.keyCode === 82 /* 'r' getready*/) {
+			console.log('key getReady pressed!');
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
 		} else if (event.keyCode === 68 /* 'd' disconnect*/) {
+			console.log('key Disconnect pressed!');
 			game.testChannel = "keyboard";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"disconnect"}');
 		} else if (event.keyCode === 83 /* 's' reSet*/) {
+			console.log('key reSet pressed!');
 			game.testChannel = "keyboard";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"reset"}');
+		} else {
+			console.log('key ' + event.keyCode + ' pressed, ignore!');
 		}
     }
 

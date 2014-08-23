@@ -17,9 +17,13 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
     if (this.$elem) {
         if (this.busy)
             return;
-		if (game.countDownPlayer)
-			game.countDownPlayer.stopCountDown();
         this.busy = true;
+
+		if (game.countDownPlayer) {
+			console.log("start roll, so stopCountDown player-" +
+					game.getCurrentPlayer().color);
+			game.countDownPlayer.stopCountDown();
+		}
 
 		that.blur();
 

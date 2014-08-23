@@ -167,13 +167,16 @@ Player.prototype.blur = function () {
 };
 
 Player.prototype.startCountDown = function(func) {
-	console.log('startCountDown player-' + this.color);
 	this.autoAction = setInterval(func, 1000);
+	console.log('startCountDown ' + this.autoAction +
+			' player-' + this.color + ' ' + func.name);
+	this.board.showCountDown(game.countDown);
 };
 
 Player.prototype.stopCountDown = function() {
-	console.log('stopCountDown player-' + this.color);
 	clearInterval(this.autoAction);
+	console.log('stopCountDown ' + this.autoAction +
+			' player-' + this.color);
 };
 
 Player.prototype.move = function (distance, pawn) {
@@ -379,7 +382,7 @@ Player.prototype.move = function (distance, pawn) {
             if (switchPlayer) {
                 game.nextPlayer();
             } else {
-                log('player ' + player.color + ':' + pawn.pawnIndex +
+                console.log('player ' + player.color + ':' + pawn.pawnIndex +
                     ' is onboard, roll dice again');
                 game.playAward();
             }
@@ -394,16 +397,6 @@ Player.prototype.move = function (distance, pawn) {
 			if (!player)
 				return;
 			user = player.getUser();
-
-			if (user.type === User.TYPE.HUMAN) {
-				if (player.getTimeOutStat() === false) {
-					game.countDown = game.USER_OP_TIMEOUT;
-					game.board.showCountDown(game.countDown);
-					player.startCountDown(autoActionForRollDice);
-
-					return;
-				}
-			}
 
 			/* if it's time for computer to roll
 			   do it automatically*/

@@ -256,6 +256,16 @@ body {
     90% { box-shadow: 0 0 8px 2px #ffffff; }     
 }
 
+#countdown {
+    position: absolute;
+    top: 280px;
+    left: 680px;
+    width: 180px;
+    height: 90px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 80px;
+}
 
 .dice-wrap {
     position: absolute;
