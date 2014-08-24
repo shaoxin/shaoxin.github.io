@@ -346,8 +346,8 @@ Player.prototype.move = function (distance, pawn) {
 		}
 	}
 
-    log("player " + this.color + " is moving to path[" + nextPos + "]:" +
-        this.path[nextPos]);
+    console.log("player " + this.color + " is moving to" +
+            " path[" + nextPos + "] (" + this.path[nextPos] + ")");
 
     pawn.move(steps,
         function() {

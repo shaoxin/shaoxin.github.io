@@ -132,8 +132,16 @@ Pawn.prototype.step = function (oneStep, isStop) {
 	}
 
     if (field) {
-        log(this.getKey() + " " + action + "," + isStop + "," + rotation + " " +
-			"(" + this.x + "," + this.y + ")->(" + field.x +"," + field.y +")");
+        var s_rotation = '' + rotation;
+        if (s_rotation.length === 1)
+            s_rotation = '  '+s_rotation;
+        else if (s_rotation.length === 2)
+            s_rotation = ' '+s_rotation;
+        console.log(this.getKey() + " " +
+                "(" + this.x  + "," + this.y + ")" +
+                " " + action  + "," + s_rotation + " " +
+                "(" + field.x + "," + field.y +")" +
+                " " + isStop  + "," + postAction);
         this.x = field.x;
         this.y = field.y;
     }
