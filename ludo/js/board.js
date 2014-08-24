@@ -30,12 +30,17 @@ var Board = function (id) {
 	this.initDestinations();
 };
 
-Board.prototype.showCountDown = function(count) {
+Board.prototype.showCountDown = function(count, color) {
 	console.log("showCountDown: " + count);
 	if (count < 10)
 		$('#countdown').html('0'+count);
 	else
 		$('#countdown').html(''+count);
+};
+
+BoardSTD.prototype.hideCountDown = function() {
+	console.log('hideCountDown');
+	$('#countdown').hide();
 };
 
 Board.prototype.resetArrow = function() {

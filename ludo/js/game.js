@@ -314,6 +314,11 @@ Game.prototype = {
 		this.board.dice.busy = false;
 		this.board.dice.blur();
 
+		if (this.countDownPlayer) {
+			this.countDownPlayer.stopCountDown();
+			this.board.hideCountDown();
+		}
+
 		// player and pawns
 		var i = 0;
 		while (p = this.players[i]) {
@@ -445,7 +450,7 @@ Game.prototype = {
 			return;
 
 		game.countDown--;
-		game.board.showCountDown(game.countDown);
+		game.board.showCountDown(game.countDown, player.color);
 
 		if (game.countDown === 0) {
 			player.setTimeOutStat(true);
@@ -466,7 +471,7 @@ Game.prototype = {
 			return;
 
 		game.countDown--;
-		game.board.showCountDown(game.countDown);
+		game.board.showCountDown(game.countDown, player.color);
 
 		if (game.countDown === 0) {
 			player.setTimeOutStat(true);

@@ -170,7 +170,7 @@ Player.prototype.startCountDown = function(func) {
 	this.autoAction = setInterval(func, 1000);
 	console.log('startCountDown ' + this.autoAction +
 			' player-' + this.color + ' ' + func.name);
-	this.board.showCountDown(game.countDown);
+	this.board.showCountDown(game.countDown, this.color);
 };
 
 Player.prototype.stopCountDown = function() {
@@ -269,6 +269,12 @@ Player.prototype.move = function (distance, pawn) {
             console.log('no field for pawn back to base');
 			return false;
         }
+		if (this.numArrived === 3) {
+			console.log('player-'+this.color + ' ' +
+					'the last pawn will be back home, ' +
+					'force switchPlayer = true');
+			switchPlayer = true;
+		}
     } else {
         this.isMoving = false;
         console.log("out of range nextPos = " + nextPos);
@@ -346,6 +352,9 @@ Player.prototype.move = function (distance, pawn) {
 		}
 	}
 
+	if (switchPlayer === true)
+		this.board.hideCountDown();
+
     console.log("player " + this.color + " is moving to" +
             " path[" + nextPos + "] (" + this.path[nextPos] + ")");
 
@@ -364,8 +373,7 @@ Player.prototype.move = function (distance, pawn) {
                 if (player.numArrived == 4) {
                     game.numDone++;
 					console.log("player-" + player.color +
-						" finished, force switchPlayer = true");
-					switchPlayer = true;
+						" finished");
                 }
             }
 

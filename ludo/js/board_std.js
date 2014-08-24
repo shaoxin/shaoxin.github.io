@@ -38,12 +38,28 @@ var BoardSTD = function (id) {
 	this.initDestinations();
 };
 
-BoardSTD.prototype.showCountDown = function(count) {
+BoardSTD.prototype.showCountDown = function(count, color) {
 	console.log("showCountDown: " + count);
 	if (count < 10)
 		$('#countdown').html('0'+count);
 	else
 		$('#countdown').html(''+count);
+	$('#countdown').show();
+
+	if (color === GREEN)
+		$('#countdown').css('background-color', '#13d213');
+	else if (color === RED)
+		$('#countdown').css('background-color', '#f65624');
+	else if (color === YELLOW)
+		$('#countdown').css('background-color', '#fed807');
+	else if (color === BLUE)
+		$('#countdown').css('background-color', '#0f8ad0');
+
+};
+
+BoardSTD.prototype.hideCountDown = function() {
+	console.log('hideCountDown');
+	$('#countdown').hide();
 };
 
 BoardSTD.prototype.resetArrow = function() {

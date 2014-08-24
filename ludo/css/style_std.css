@@ -259,12 +259,16 @@ body {
 #countdown {
     position: absolute;
     top: 280px;
-    left: 680px;
-    width: 180px;
+    left: 670px;
+    width: 100px;
     height: 90px;
     color: #fff;
     font-weight: bold;
-    font-size: 80px;
+    font-size: 75px;
+	text-align: center;
+    border: 0 solid;
+	border-radius: 45px;
+    padding: 5px;
 }
 
 .dice-wrap {
@@ -279,19 +283,19 @@ body {
 }
 
 .dice-wrap-red {
-    background-color: rgb(183, 37, 30);
+    background-color: #f65624;
 }
 
 .dice-wrap-green {
-    background-color: rgb(28, 85, 17);
+    background-color: #13d213;
 }
 
 .dice-wrap-yellow {
-    background-color: rgb(154, 115, 24);
+    background-color: #fed807;
 }
 
 .dice-wrap-blue {
-    background-color: rgb(36, 63, 84);
+    background-color: #0f8ad0;
 }
 
 @-webkit-keyframes focusdice {
