@@ -33,7 +33,7 @@ body {
     float: left;
     width: 640px;
     height: 640px;
-    background: url('../images/standard/board.jpg');
+    background: url('../images/standard/board.png');
     box-shadow: 1px 1px 10px #000;
 }
 
