@@ -321,6 +321,7 @@ Game.prototype = {
 			i++;
 		}
 		this.current = -1;
+		this.numDone = 0;
 
 		// user
 		for (var e in this.users) {
