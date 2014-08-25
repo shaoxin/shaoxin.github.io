@@ -6,6 +6,7 @@ var Pawn = function (player, pawnIndex) {
     this.isMoving = false;
     this.isFocused = false;
     this.isArrived = false;
+	this.rotation = 0;
 };
 
 Pawn.STOP = "STOP";
@@ -66,7 +67,7 @@ Pawn.prototype.move = function (steps, callback) {
     var that = this;
 
     function doStep(steps, callback) {
-	var oneStep;
+        var oneStep;
         if (steps.length > 1) {
             oneStep = steps.shift();
             that.step.call(that, oneStep, Pawn.NOT_STOP);
@@ -76,9 +77,19 @@ Pawn.prototype.move = function (steps, callback) {
         } else {
             oneStep = steps[0];
             that.step.call(that, oneStep, Pawn.STOP);
-            if (typeof callback === 'function') {
-                callback(oneStep);
-            }
+
+			var lastField = oneStep.field;
+			if (lastField.color === that.player.color &&
+					lastField.action === ACTION.TURNRIGHT) {
+				setTimeout(function(pawn, oneStep) {
+					var r = pawn.rotation + 90;
+					pawn.$elem.css("-webkit-transform", "rotate("+r+"deg)");
+					callback(oneStep);
+				}, 100, that, oneStep);
+			} else {
+				if (typeof callback === 'function')
+					callback(oneStep);
+			}
         }
     }
 
@@ -144,6 +155,11 @@ Pawn.prototype.step = function (oneStep, isStop) {
                 " " + isStop  + "," + postAction);
         this.x = field.x;
         this.y = field.y;
+		this.rotation = rotation;
+		if (isStop !== Pawn.STOP &&
+				field.color === this.player.color &&
+				field.action === ACTION.TURNRIGHT)
+			this.rotation += 90;
     }
 
     if (this.$elem) {
