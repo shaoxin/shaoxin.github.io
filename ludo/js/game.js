@@ -291,6 +291,10 @@ Game.prototype = {
 		}
 		console.log('senderId:' + senderId + 'name:' + user.name + ' disconnected');
 		user.isDisconnected = true;
+
+		if (this.stat !== GAME_STATUS.WAIT_FOR_PAWN &&
+				this.stat !== GAME_STATUS.WAIT_FOR_DICE)
+			this.doDisconnect(user);
 		// TODO update player name in the list
 	},
 
