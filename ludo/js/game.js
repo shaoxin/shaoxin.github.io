@@ -419,10 +419,6 @@ Game.prototype = {
           game.castReceiverManager.getCastMessageBus(
               'urn:x-cast:com.google.cast.sample.helloworld');
 
-        // initialize the CastReceiverManager with an application status message
-        game.castReceiverManager.start({statusText: "Application is starting"});
-        console.log('Receiver Manager started');
-
         // handler for the CastMessageBus message event
         game.messageBus.onMessage = function(event) {
           console.log('Message [' + event.senderId + ']: ' + event.data);
@@ -437,6 +433,10 @@ Game.prototype = {
           console.log("onMessage msg.COMMAND=" + msg.COMMAND);
           handlemsg(event.senderId, event.data);
         }
+
+        // initialize the CastReceiverManager with an application status message
+        game.castReceiverManager.start({statusText: "Application is starting"});
+        console.log('Receiver Manager started');
 	};
 
     function onload() {
