@@ -406,7 +406,7 @@ Player.prototype.move = function (distance, pawn) {
 				return;
 			user = player.getUser();
 
-			if (user.isDisconnected()) {
+			if (user.isDisconnected) {
 				game.doDisconnect(user);
 				return;
 			}
