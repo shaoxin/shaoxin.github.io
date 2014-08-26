@@ -38,7 +38,7 @@ Board.prototype.showCountDown = function(count, color) {
 		$('#countdown').html(''+count);
 };
 
-BoardSTD.prototype.hideCountDown = function() {
+Board.prototype.hideCountDown = function() {
 	console.log('hideCountDown');
 	$('#countdown').hide();
 };
