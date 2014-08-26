@@ -28,6 +28,8 @@ function User(type, isready, name, senderID) {
 	this.name = name;
 	this.senderID = senderID;
 	this.ishost = false;
+	this.isDisconnected = false;
+	this.isUnderDisconnection = false;
 	this.players = {};
 };
 

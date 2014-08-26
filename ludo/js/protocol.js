@@ -131,6 +131,7 @@ ERROR = {
 	EVER:         'invalid protocol version',
 	EVERMISMATCH: 'protocol version mismatching with that in use',
 	EMAGIC:       'invalid protocol magic',
+	EBUSY:        'busy',
 };
 
 function LudoProtocol() {
@@ -139,6 +140,12 @@ function LudoProtocol() {
 
 LudoProtocol.prototype.parseProt_1_onConnect = function(senderID, msgObj) {
 	try {
+		if (game.stat === GAME_STATUS.WAIT_FOR_DICE ||
+				game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
+			console.log("game already started, user connection disallowed");
+			throw ERROR.EBUSY;
+		}
+
 		var user = new User(User.TYPE.HUMAN, User.UNREADY,
 				msgObj.username, senderID);
 		ret = game.addUser(user);

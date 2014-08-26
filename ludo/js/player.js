@@ -406,6 +406,11 @@ Player.prototype.move = function (distance, pawn) {
 				return;
 			user = player.getUser();
 
+			if (user.isDisconnected()) {
+				game.doDisconnect(user);
+				return;
+			}
+
 			/* if it's time for computer to roll
 			   do it automatically*/
 			if (user.type != User.TYPE.COMPUTER &&

@@ -138,6 +138,13 @@ Game.prototype = {
             i++;
         }
 
+		var c, user;
+		for (c in this.users) {
+			user = this.users[c];
+			if (user.isDisconnected)
+				this.doDisconnect(user);
+		}
+
         i = 0;
         while (i < 4) {
             if (next == 3) {
@@ -145,7 +152,7 @@ Game.prototype = {
             } else {
                 next++;
             }
-			var user = this.players[next].getUser();
+			user = this.players[next].getUser();
 			if (user.type === User.TYPE.UNAVAILABLE ||
 					user.type === User.TYPE.NOBODY) {
 				console.log("skip player-" + this.players[next].color +
@@ -233,6 +240,48 @@ Game.prototype = {
 		return this.users[senderID] || null;
 	},
 
+	doDisconnect: function(user) {
+		var c, p;
+		var notify={}, player_status={};
+
+		if (user.isUnderDisconnection === true)
+			return;
+		user.isUnderDisconnection = true;
+
+		for (c in user.players) {
+			p = user.players[c];
+			p.setUser(this.user_nobody);
+			//p.reset();
+
+			notify.command = LudoProtocol.COMMAND.pickup + '_notify';
+			player_status.color     = p.color;
+			player_status.user_type = p.getUser().type;
+			player_status.isready   = p.getUser().isready;
+			player_status.username  = p.getUser().name;
+			notify.player_status = player_status;
+
+			this.proto.broadcast(notify);
+		}
+
+		delete this.users[user.senderID];
+		this.num_user--;
+
+		if (this.user_host === user) {
+			var new_host = null;
+			for (var id in this.users) {
+				new_host = this.users[id];
+				new_host.ishost = true;
+				break;
+			}
+			this.user_host = new_host;
+		}
+
+		if (this.num_user === 0) {
+			this.doReset();
+			return;
+		}
+	},
+
 	onDisconnect: function(senderId) {
 		var user = this.users[senderId];
 		if (user === undefined) {
@@ -240,36 +289,8 @@ Game.prototype = {
 			return;
 		}
 		console.log('senderId:' + senderId + 'name:' + user.name + ' disconnected');
-		var c, p, notify={}, player_status={}, isChangePlayer = false;
-		notify.command = LudoProtocol.COMMAND.pickup + '_notify';
-		notify.player_status = player_status;
-		for (c in user.players) {
-			p = user.players[c];
-			p.setUser(this.user_nobody);
-			p.resetPawns();
-			if (p === this.getCurrentPlayer())
-				isChangePlayer = true;
-
-			player_status.color     = p.color;
-			player_status.user_type = p.getUser().type;
-			player_status.isready   = p.getUser().isready;
-			player_status.username  = p.getUser().name;
-
-			this.proto.broadcast(notify);
-		}
-		if (this.user_host === user) {
-			console.log('host disconnected');
-			this.user_host = null;
-		}
-		delete this.users[senderId];
-		this.num_user--;
-		if (this.num_user === 0) {
-			$('.arrow').hide();
-			this.board.dice.blur();
-			this.current = -1;
-		} else if (isChangePlayer) {
-			this.nextPlayer();
-		}
+		user.isDisconnected = true;
+		// TODO update player name in the list
 	},
 
 	isReady: function() {
@@ -449,6 +470,12 @@ Game.prototype = {
 				game.board.dice.busy === true)
 			return;
 
+		var user = player.getUser();
+		if (user.isDisconnected) {
+			game.doDisconnect(user);
+			return;
+		}
+
 		game.countDown--;
 		game.board.showCountDown(game.countDown, player.color);
 
@@ -465,10 +492,16 @@ Game.prototype = {
 			return;
 
 		if ((game.stat !== GAME_STATUS.WAIT_FOR_DICE &&
-					game.stat !== GAME_STATUS.WAIT_FOR_PAWN) ||
+				game.stat !== GAME_STATUS.WAIT_FOR_PAWN) ||
 				game.board.dice.busy === true ||
 				player.isMoving === true)
 			return;
+
+		var user = player.getUser();
+		if (user.isDisconnected) {
+			game.doDisconnect(user);
+			return;
+		}
 
 		game.countDown--;
 		game.board.showCountDown(game.countDown, player.color);
