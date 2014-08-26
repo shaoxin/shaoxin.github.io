@@ -342,6 +342,14 @@ LudoProtocol.prototype.broadcastStartGame = function() {
 	this.broadcast(broadcastMsg);
 };
 
+LudoProtocol.prototype.broadcastEndOfGame = function() {
+	console.log('broadcasting game over');
+	broadcastMsg = {};
+	broadcastMsg.command =
+		LudoProtocol.COMMAND.endofgame + '_notify';
+	this.broadcast(broadcastMsg);
+};
+
 LudoProtocol.prototype.parseProt_1 = function(senderID, msgObj) {
 	try {
 		switch (msgObj.command) {

@@ -130,6 +130,7 @@ Game.prototype = {
 			this.board.hideArrow();
             console.log('all players are done, need to restart the game');
 			this.stat = GAME_STATUS.GAME_OVER;
+			this.proto.broadcastEndOfGame();
             return;
         }
 
