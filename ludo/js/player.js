@@ -73,6 +73,12 @@ Player.prototype.getNextAvailPawnIndex = function () {
         } else {
             current++;
         }
+        
+        if(game.board.dice.getValue() !== 6 && this.pawns[current].position === -1 ){
+        	i++;
+        	continue;
+        }          
+        
         if (this.pawns[current].isArrived) {
             i++;
             continue;
@@ -101,12 +107,20 @@ Player.prototype.prevPawn = function () {
         } else {
             current--;
         }
+        
+        if(game.board.dice.getValue() !== 6 && this.pawns[current].position === -1 ){
+        	i++;
+        	continue;
+        }         
+        
         if (this.pawns[current].isArrived) {
             i++;
             continue;
         } else {
             break;
         }
+        
+        
     }
     this.pawns[prev].blur();
     this.currentPawn = current;
