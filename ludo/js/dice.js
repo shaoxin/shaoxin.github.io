@@ -31,10 +31,14 @@ Dice.prototype.roll = function (callback, cb_outofbusy) {
         this.$elem.addClass('throw');
 
         setTimeout(function () {
-            var vals = [1, 2, 3, 4, 5, 6, 6, 6], // increased chance of rolling 6
-                newValue = vals[~~(Math.random() * 8)];
+            var vals = [1, 2, 3, 4, 5, 6, 6], // increased chance of rolling 6
+                newValue = vals[~~(Math.random() * 7)];
 
-            Sfx.play('dice', newValue === 6 ? function () { Sfx.play('rolled_6'); } : null);
+            Sfx.play('dice');
+            if(newValue === 6)
+            {
+            	setTimeout(Sfx.play('rolled_6'), 300);
+            }
 
             $dice
                 .removeClass('dice-' + that.value)
