@@ -402,13 +402,15 @@ Player.prototype.move = function (distance, pawn) {
                     ' arrived, pick up pawn ' + player.getCurrentPawn().pawnIndex);
             }
 
-            if (switchPlayer) {
-                game.nextPlayer();
-            } else {
-                console.log('player ' + player.color + ':' + pawn.pawnIndex +
-                    ' is onboard, roll dice again');
-                game.playAward();
-            }
+			if (game.stat === GAME_STATUS.WAIT_FOR_PAWN) {
+				if (switchPlayer) {
+					game.nextPlayer();
+				} else {
+					console.log('player ' + player.color + ':' + pawn.pawnIndex +
+							' is onboard, roll dice again');
+					game.playAward();
+				}
+			}
             player.isMoving = false;
 
 			if (game.stat === GAME_STATUS.RESET) {

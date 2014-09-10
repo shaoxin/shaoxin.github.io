@@ -146,6 +146,9 @@ Game.prototype = {
 				this.doDisconnect(user);
 		}
 
+		if (this.stat === GAME_STATUS.RESET)
+			return;
+
         i = 0;
         while (i < 4) {
             if (next == 3) {
@@ -278,7 +281,11 @@ Game.prototype = {
 		}
 
 		if (this.num_user === 0) {
-			this.doReset();
+			this.reset();
+			game.playersColorIndex[RED].setUser(game.user_nobody);
+			game.playersColorIndex[GREEN].setUser(game.user_nobody);
+			game.playersColorIndex[YELLOW].setUser(game.user_nobody);
+			game.playersColorIndex[BLUE].setUser(game.user_nobody);
 			return;
 		}
 	},
@@ -472,8 +479,10 @@ Game.prototype = {
 			return;
 
 		if (game.stat !== GAME_STATUS.WAIT_FOR_DICE ||
-				game.board.dice.busy === true)
+				game.board.dice.busy === true) {
+            player.stopCountDown();
 			return;
+		}
 
 		var user = player.getUser();
 		if (user.isDisconnected) {
@@ -499,8 +508,10 @@ Game.prototype = {
 		if ((game.stat !== GAME_STATUS.WAIT_FOR_DICE &&
 				game.stat !== GAME_STATUS.WAIT_FOR_PAWN) ||
 				game.board.dice.busy === true ||
-				player.isMoving === true)
+				player.isMoving === true) {
+            player.stopCountDown();
 			return;
+		}
 
 		var user = player.getUser();
 		if (user.isDisconnected) {
@@ -528,6 +539,10 @@ Game.prototype = {
 		if (!player)
 			return;
 
+		if (game.stat !== GAME_STATUS.WAIT_FOR_DICE &&
+				game.stat !== GAME_STATUS.WAIT_FOR_PAWN)
+			return;
+
         console.log('rollDoneHandler inbusy: currentPlayer=' + player.color +
 				' dice=' + newValue);
 
@@ -549,6 +564,10 @@ Game.prototype = {
         var player = game.getCurrentPlayer();
 
 		if (!player)
+			return;
+
+		if (game.stat !== GAME_STATUS.WAIT_FOR_DICE &&
+				game.stat !== GAME_STATUS.WAIT_FOR_PAWN)
 			return;
 
 		var user = player.getUser();
@@ -675,10 +694,11 @@ Game.prototype = {
 			if (game.user_test)
 				return;
 			game.testChannel = "keyboard";
-			game.user_test =
-				new User(User.TYPE.HUMAN, User.READY, "test",
-						game.testChannel);
-			game.playersColorIndex[RED].setUser(game.user_test);
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
+			handlemsg(game.testChannel,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
+
 			game.playersColorIndex[GREEN].setUser(game.user_computer);
 			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
