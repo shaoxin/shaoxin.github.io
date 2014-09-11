@@ -105,7 +105,7 @@ a:hover {
  */
 
 h1 {
-    font-size: 2em;
+    font-size: 10em;
 }
 
 /*
@@ -268,7 +268,7 @@ input,
 select,
 textarea {
     font-family: inherit; /* 1 */
-    font-size: 100%; /* 2 */
+    font-size: 200%; /* 2 */
     margin: 0; /* 3 */
 }
 
