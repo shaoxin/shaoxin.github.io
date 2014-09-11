@@ -420,6 +420,11 @@ Player.prototype.move = function (distance, pawn) {
 				return;
 			}
 
+            if (game.isGameOver()) {
+				game.gameOver();
+                return;
+            }
+
 			player = game.getCurrentPlayer();
 			if (!player)
 				return;

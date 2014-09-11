@@ -122,18 +122,30 @@ Game.prototype = {
         this.stat = GAME_STATUS.WAIT_FOR_DICE;
     },
 
+	isGameOver: function() {
+		var i = 0, p, u;
+		while (p = this.players[i]) {
+			u = p.getUser();
+			if (u) {
+				if ((u.type === User.TYPE.HUMAN ||
+						u.type === User.TYPE.COMPUTER) &&
+						p.isFinished === false)
+					return false;
+			}
+		}
+		return true;
+	},
+	gameOver: function() {
+       this.getCurrentPlayer().blur();
+       this.board.hideArrow();
+       console.log('all players are done, need to restart the game');
+       this.stat = GAME_STATUS.GAME_OVER;
+       this.proto.broadcastEndOfGame();
+	},
+
     nextPlayer : function () {
         var next = this.current,
             i = 0;
-
-        if (this.numDone == 4) {
-            this.getCurrentPlayer().blur();
-			this.board.hideArrow();
-            console.log('all players are done, need to restart the game');
-			this.stat = GAME_STATUS.GAME_OVER;
-			this.proto.broadcastEndOfGame();
-            return;
-        }
 
         while (this.players[i]) {
             this.players[i].blur();
@@ -171,6 +183,10 @@ Game.prototype = {
                 continue;
             }
             break;
+        }
+        if (i === 4) {
+            this.gameOver();
+            return;
         }
 
 		var player = this.getCurrentPlayer();
