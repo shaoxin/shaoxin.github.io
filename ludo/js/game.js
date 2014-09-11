@@ -110,6 +110,7 @@ Game.prototype = {
 
     playAward : function () {
         this.board.dice.focus();
+        this.countDown += 5;
 
 		var player = this.getCurrentPlayer();
 		var user = player.getUser();
