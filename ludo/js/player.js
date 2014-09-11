@@ -63,7 +63,7 @@ Player.prototype.getCurrentPawn = function () {
     return this.pawns[this.currentPawn] || null;
 }
 
-Player.prototype.getNextAvailPawnIndex = function () {
+Player.prototype.getNextAvailPawnIndex = function (diceValue) {
     var current = this.currentPawn;
     var i = 0;
 
@@ -78,12 +78,14 @@ Player.prototype.getNextAvailPawnIndex = function () {
             i++;
             continue;
         } else {
-        	
-		        if(game.board.dice.getValue() !== 6 && this.pawns[current].position === -1 ){
+        	if (diceValue) {
+				// diceValue is also a consideration for pawn pickup
+		        if(this.pawns[current].position === -1 &&
+						diceValue !== 6) {
 		        	i++;
 		        	continue;
-		        }          	
-        	
+		        }
+			}
             break;
         }
     }
@@ -94,7 +96,7 @@ Player.prototype.nextPawn = function () {
     var prev = this.currentPawn;
 
     this.pawns[prev].blur();
-    this.currentPawn = this.getNextAvailPawnIndex();
+    this.currentPawn = this.getNextAvailPawnIndex(game.board.dice.getValue());
     this.pawns[this.currentPawn].focus();
 }
 Player.prototype.prevPawn = function () {
