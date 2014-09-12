@@ -369,9 +369,6 @@ Player.prototype.move = function (distance, pawn) {
 		}
 	}
 
-	if (switchPlayer === true)
-		this.board.hideCountDown();
-
     console.log("player " + this.color + " is moving to" +
             " path[" + nextPos + "] (" + this.path[nextPos] + ")");
 

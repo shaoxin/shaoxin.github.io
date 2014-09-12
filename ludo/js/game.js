@@ -190,8 +190,10 @@ Game.prototype = {
         }
 
 		var player = this.getCurrentPlayer();
-		if (player && player.getUser().type === User.TYPE.HUMAN)
+		if (player && player.getUser().type === User.TYPE.HUMAN) {
 			player.setTimeOutStat(false);
+			this.board.hideCountDown();
+		}
 
 		var next_player = this.getPlayerFromIndex(next);
 		if (next_player.getUser().type === User.TYPE.HUMAN) {
