@@ -683,17 +683,47 @@ Game.prototype = {
     }
 
     document.onkeydown = function(event) {
-        if (event.keyCode === 13 /*'enter'*/) {
+		var keyCode = event.keyCode;
+		var ch = "default";
+		/*           | connect   disconnect    ready    click       next        prev
+		 * -------------------------------------------------------------------------
+		 * keyboard1 |   up 38    down 40      ' 222    enter 13   right 39    left 37
+		 * keyboard2 |    i 69      k  68      h  72       o  79     l   76     j   74
+		 *
+		 * add 4 AI:         a
+		 * add multi-users:  u
+		 * pickup:           p
+		 * reset:            s
+		 */
+		if (keyCode === 38 || keyCode === 40 || keyCode === 222 ||
+				keyCode === 13 || keyCode === 39 || keyCode === 37)
+			ch = "keyboard1";
+		else if (keyCode === 69 || keyCode === 75 || keyCode === 72 ||
+				keyCode === 79 || keyCode === 76 || keyCode === 74)
+			ch = "keyboard2";
+
+        if (keyCode === 38 /* 'up' */ || keyCode === 69 /*i*/) {
+			console.log('key Connect pressed!');
+			handlemsg(ch,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
+		} else if (keyCode === 40 /* 'down' */|| keyCode === 75 /*k*/) {
+			console.log('key Disconnect pressed!');
+			handlemsg(ch,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"disconnect"}');
+		} else if (keyCode === 222 /* ' */|| keyCode === 72/*h*/) {
+			console.log('key getReady pressed!');
+			handlemsg(ch,
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
+		} else if (keyCode === 13 /*'enter'*/ || keyCode === 79 /*o*/) {
 			console.log('key Enter pressed!');
-            handlemsg(game.testChannel, 'click');
-			//handlemsg(0, '{"command":"connect","MAGIC":"ONLINE","username":"alice","prot_version":1}');
-        } else if (event.keyCode === 37 /*left*/) {
-			console.log('key Left/prev-pawn pressed!');
-            handlemsg(game.testChannel, 'prev');
-        } else if (event.keyCode === 39 /*right*/) {
+            handlemsg(ch, 'click');
+        } else if (keyCode === 39 /*right*/|| keyCode === 76/*l*/) {
 			console.log('key Right/next-pawn pressed!');
-            handlemsg(game.testChannel, 'next');
-        } else if (event.keyCode === 65 /*'a'*/) {
+            handlemsg(ch, 'next');
+        } else if (keyCode === 37 /*left*/|| keyCode === 74/*j*/) {
+			console.log('key Left/prev-pawn pressed!');
+            handlemsg(ch, 'prev');
+        } else if (keyCode === 65 /*'a'*/) {
 			console.log('key Ai pressed!');
 			if (typeof computer_kicked_off !== 'undefined') {
 				console.log("computer battle already started");
@@ -709,29 +739,21 @@ Game.prototype = {
 
             game.board.dice.roll(rollDoneHandler,
 						rollDoneHandler_outofbusy);
-        } else if (event.keyCode === 85 /*'u'*/) {
+        } else if (keyCode === 85 /*'u'*/) {
 			console.log('key User pressed!');
-			if (game.user_test)
-				return;
-			game.testChannel = "keyboard";
-			handlemsg(game.testChannel,
-				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
-			handlemsg(game.testChannel,
+			handlemsg("keyboard1",
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test1"}');
+			handlemsg("keyboard1",
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
 
-			game.playersColorIndex[GREEN].setUser(game.user_computer);
+			handlemsg("keyboard2",
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test2"}');
+			handlemsg("keyboard2",
+				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"green", "user_type":"human"}');
+
 			game.playersColorIndex[YELLOW].setUser(game.user_unavailable);
 			game.playersColorIndex[BLUE].setUser(game.user_computer);
-		} else if (event.keyCode === 67 /* 'c' connect*/) {
-			console.log('key Connect pressed!');
-			if (game.num_user !== 0) {
-				console.log('host already connected, nothing to do');
-				return;
-			}
-			game.testChannel = "keyboard";
-			handlemsg(game.testChannel,
-				'{"MAGIC":"ONLINE", "prot_version":1, "command":"connect", "username":"test"}');
-		} else if (event.keyCode === 80 /* 'p'*/) {
+		} else if (keyCode === 80 /* 'p'*/) {
 			console.log('key Pickup pressed!');
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"red", "user_type":"human"}');
@@ -741,22 +763,13 @@ Game.prototype = {
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"yellow", "user_type":"human"}');
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"pickup", "color":"blue", "user_type":"human"}');
-		} else if (event.keyCode === 82 /* 'r' getready*/) {
-			console.log('key getReady pressed!');
-			handlemsg(game.testChannel,
-				'{"MAGIC":"ONLINE", "prot_version":1, "command":"getready"}');
-		} else if (event.keyCode === 68 /* 'd' disconnect*/) {
-			console.log('key Disconnect pressed!');
-			game.testChannel = "keyboard";
-			handlemsg(game.testChannel,
-				'{"MAGIC":"ONLINE", "prot_version":1, "command":"disconnect"}');
-		} else if (event.keyCode === 83 /* 's' reSet*/) {
+		} else if (keyCode === 83 /* 's' reSet*/) {
 			console.log('key reSet pressed!');
 			game.testChannel = "keyboard";
 			handlemsg(game.testChannel,
 				'{"MAGIC":"ONLINE", "prot_version":1, "command":"reset"}');
 		} else {
-			console.log('key ' + event.keyCode + ' pressed, ignore!');
+			console.log('key ' + keyCode + ' pressed, ignore!');
 		}
     }
 
