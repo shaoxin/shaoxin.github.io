@@ -502,7 +502,9 @@ Game.prototype = {
 
 		var user = player.getUser();
 		if (user.isDisconnected) {
+			player.stopCountDown();
 			game.doDisconnect(user);
+			game.nextPlayer();
 			return;
 		}
 
@@ -531,7 +533,9 @@ Game.prototype = {
 
 		var user = player.getUser();
 		if (user.isDisconnected) {
+			player.stopCountDown();
 			game.doDisconnect(user);
+			game.nextPlayer();
 			return;
 		}
 
