@@ -132,6 +132,7 @@ Game.prototype = {
 						p.isFinished === false)
 					return false;
 			}
+			i++;
 		}
 		return true;
 	},
